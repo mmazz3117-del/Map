@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v88 Business Directory Subtitle</title>
+<title>Wayland Square Postcard Project Manager — v94 Restore Detailed Basemap</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -265,7 +265,7 @@
   .printMapPage { border:.035in solid var(--navy); display:flex; align-items:center; justify-content:center; }
   .printMapFrame { position:relative; width:100%; height:100%; overflow:hidden; background:var(--paper); }
   .printMapBody {
-    position:absolute; left:0; right:0; top:1.30in; bottom:.30in;
+    position:absolute; left:0; right:0; top:1.30in; bottom:.24in;
     overflow:hidden; background:var(--paper); z-index:1;
   }
   .printMapArt {
@@ -285,6 +285,18 @@
     object-fit:fill;
     filter:brightness(1.06) saturate(.90) contrast(.95);
   }
+  /* v94 rollback note: restored the detailed/color basemap from v92 and removed the v93 neutral grayscale/lighten filter.
+   Pins, leader lines, crop math, and print spacing are unchanged. */
+
+  /* v95: matched solid bottom fill.
+     This covers only the visible crop strip above the footer with a soft neutral map-background color.
+     It does not change map crop math, pin coordinates, leader lines, or print spacing. */
+  .printMapBottomFill {
+    position:absolute; left:0; right:0; bottom:0;
+    height:.22in; overflow:hidden; pointer-events:none; z-index:1;
+    background:#f6f6f1;
+  }
+  .printMapBottomFill .printMapSvgCrop { display:none; }
   .printPinLayer { position:absolute; inset:0; pointer-events:none; z-index:2; }
   .printMapFooter { z-index:6; font-family:Arial, Helvetica, sans-serif; font-weight:700; font-size:9.1pt; letter-spacing:.01em; color:#fff; }
   .printPin {
@@ -336,7 +348,7 @@
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v88 Business Directory Subtitle</h1>
+  <h1>Wayland Square Postcard Project Manager v94 Restore Detailed Basemap</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -357,12 +369,11 @@
         <input id="pinSize" type="range" min="8" max="64" value="16" oninput="previewPinSettings()">
         <span id="pinSizeLabel" class="pinValueBadge">16</span>
         <label for="printPinScale">Print Scale</label>
-        <input id="printPinScale" type="range" min="40" max="100" value="67" oninput="previewPinSettings(); loadPrintSpacingSetting();
-  renderPrintPreviews();">
+        <input id="printPinScale" type="range" min="40" max="100" value="67" oninput="savePrintSettings()">
         <span id="printPinScaleLabel" class="pinValueBadge">67%</span>
         <label for="printPinSpread">Print Spacing</label>
-        <input id="printPinSpread" type="range" min="100" max="155" value="100" oninput="previewPinSettings(); renderPrintPreviews();">
-        <span id="printPinSpreadLabel" class="pinValueBadge">100%</span>
+        <input id="printPinSpread" type="range" min="100" max="155" value="120" oninput="savePrintSettings()">
+        <span id="printPinSpreadLabel" class="pinValueBadge">120%</span>
       </div>
       <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button></div>
       <div class="controlGroup decorGroup">
@@ -448,7 +459,7 @@
   <div class="printIntro">
     <h2>Print Production Preview</h2>
     <p><strong>Best print path:</strong> finish the directory and pins here, click <strong>Refresh Print Preview</strong>, then use <strong>Print / Save Both Sides PDF</strong>. In the print dialog, choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, and turn off browser headers/footers. The SVG download is a design file and will open in Chrome; use Chrome’s Print > Save as PDF if you need a PDF from it.</p>
-    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout.</p>
+    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file.</p>
   </div>
   <div id="printPages" class="printPages">
     <div id="printDirectoryPage" class="printPage printDirectoryPage postcard"></div>
@@ -867,8 +878,9 @@ function renderPrintPreviews() {
   const mapTopPct = (-PRINT_CROP_Y / PRINT_CROP_H * 100).toFixed(6);
 
   const vectorMapCrop = `<div class="printMapSvgCrop"><img src="${mapImg.src}" alt="Wayland Square map body" style="left:${mapLeftPct}%;top:${mapTopPct}%;width:${mapWidthPct}%;height:${mapHeightPct}%;"></div>`;
+  const bottomMapFill = `<div class="printMapBottomFill" aria-hidden="true">${vectorMapCrop}</div>`;
 
-  mapPage.innerHTML = `<div class="printMapFrame">${mapTitleHTML('printMapVectorTitle')}<div class="printMapBody"><div class="printMapArt">${vectorMapCrop}${decorPrintMarkup(PRINT_CROP_X, PRINT_CROP_Y, PRINT_CROP_W, PRINT_CROP_H)}<div class="printLeaderLayer"><svg viewBox="0 0 ${PRINT_CROP_W} ${PRINT_CROP_H}" preserveAspectRatio="none">${leaderMarkup}</svg></div><div class="printPinLayer">${pinMarkup}</div></div></div><div class="footerBand printMapFooter">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>${printBrandMarkup()}</div>`;
+  mapPage.innerHTML = `<div class="printMapFrame">${mapTitleHTML('printMapVectorTitle')}<div class="printMapBody"><div class="printMapArt">${vectorMapCrop}${bottomMapFill}${decorPrintMarkup(PRINT_CROP_X, PRINT_CROP_Y, PRINT_CROP_W, PRINT_CROP_H)}<div class="printLeaderLayer"><svg viewBox="0 0 ${PRINT_CROP_W} ${PRINT_CROP_H}" preserveAspectRatio="none">${leaderMarkup}</svg></div><div class="printPinLayer">${pinMarkup}</div></div></div><div class="footerBand printMapFooter">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>${printBrandMarkup()}</div>`;
 }
 function printTarget(target) {
   renderPrintPreviews();
@@ -877,36 +889,80 @@ function printTarget(target) {
   setTimeout(() => { document.body.dataset.printTarget = ''; }, 1500);
 }
 
-function loadPrintSpacingSetting() {
-  try {
-    const saved = localStorage.getItem(PRINT_SPACING_STORAGE_KEY);
-    const el = document.getElementById('printPinScale');
-    if (saved && el) {
-      el.value = saved;
-      const lbl = document.getElementById('printPinScaleLabel');
-      if (lbl) lbl.textContent = `${saved}%`;
-    }
-  } catch(e) {}
+function clampPrintSetting(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, Math.round(n)));
 }
-function savePrintSpacingSetting() {
+function updatePrintSettingsLabels() {
+  const scaleEl = document.getElementById('printPinScale');
+  const scaleLbl = document.getElementById('printPinScaleLabel');
+  const spreadEl = document.getElementById('printPinSpread');
+  const spreadLbl = document.getElementById('printPinSpreadLabel');
+  if (scaleEl && scaleLbl) scaleLbl.textContent = `${scaleEl.value}%`;
+  if (spreadEl && spreadLbl) spreadLbl.textContent = `${spreadEl.value}%`;
+}
+function loadPrintSettings() {
   try {
-    const el = document.getElementById('printPinScale');
-    if (!el) return;
-    localStorage.setItem(PRINT_SPACING_STORAGE_KEY, String(el.value));
-    const lbl = document.getElementById('printPinScaleLabel');
-    if (lbl) lbl.textContent = `${el.value}%`;
-    renderPrintPreviews();
-    statusEl.textContent = `Print spacing saved at ${el.value}%.`;
+    const scaleEl = document.getElementById('printPinScale');
+    const spreadEl = document.getElementById('printPinSpread');
+    let saved = null;
+    const raw = localStorage.getItem(PRINT_SETTINGS_STORAGE_KEY);
+    if (raw) saved = JSON.parse(raw);
+
+    // Compatibility with v86/v87/v88, which only saved the print scale under the old key.
+    if (!saved) {
+      const oldScale = localStorage.getItem(PRINT_SPACING_STORAGE_KEY);
+      if (oldScale) saved = { scale: oldScale };
+    }
+
+    if (saved && scaleEl && saved.scale != null) {
+      scaleEl.value = clampPrintSetting(saved.scale, 40, 100, 67);
+    }
+    if (saved && spreadEl && saved.spread != null) {
+      spreadEl.value = clampPrintSetting(saved.spread, 100, 155, 120);
+    }
+    updatePrintSettingsLabels();
   } catch(e) {
+    updatePrintSettingsLabels();
+  }
+}
+function savePrintSettings(showStatus=false) {
+  try {
+    const scaleEl = document.getElementById('printPinScale');
+    const spreadEl = document.getElementById('printPinSpread');
+    if (!scaleEl || !spreadEl) return;
+
+    const settings = {
+      scale: clampPrintSetting(scaleEl.value, 40, 100, 67),
+      spread: clampPrintSetting(spreadEl.value, 100, 155, 120)
+    };
+    scaleEl.value = settings.scale;
+    spreadEl.value = settings.spread;
+
+    localStorage.setItem(PRINT_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(PRINT_SPACING_STORAGE_KEY, String(settings.scale));
+    updatePrintSettingsLabels();
+    previewPinSettings();
+    renderPrintPreviews();
+
+    if (showStatus && typeof statusEl !== 'undefined' && statusEl) {
+      statusEl.textContent = `Print scale saved at ${settings.scale}% and print spacing saved at ${settings.spread}%.`;
+    }
+  } catch(e) {
+    updatePrintSettingsLabels();
     renderPrintPreviews();
   }
 }
+function loadPrintSpacingSetting() { loadPrintSettings(); }
+function savePrintSpacingSetting() { savePrintSettings(true); }
 
 /* Map tool */
 const viewport = document.getElementById('viewport'), world = document.getElementById('world'), zoomLabel = document.getElementById('zoomLabel'), statusEl = document.getElementById('status'), pinSizeInput = document.getElementById('pinSize'), pinSizeLabel = document.getElementById('pinSizeLabel'), pinColorInput = document.getElementById('pinColor'), pinDirectionInput = document.getElementById('pinDirection'), pinBorderInput = document.getElementById('pinBorder'), pinBorderLabel = document.getElementById('pinBorderLabel'), leaderEnabledInput = document.getElementById('leaderEnabled'), leaderWidthInput = document.getElementById('leaderWidth'), leaderWidthLabel = document.getElementById('leaderWidthLabel'), leaderLayer = document.getElementById('leaderLayer'), leaderAnchorHandle = document.getElementById('leaderAnchorHandle');
 let scale=1, panX=0, panY=0, mode='pan', isPanning=false, panStart={x:0,y:0,panX:0,panY:0}, selected=null, pinsVisible=true, draggedPin=null, draggedAnchor=false;
 const MAP_W=1658, MAP_H=1448, PIN_STORAGE_KEY='waylandSquarePinsV44DecorLayers';
 const PRINT_SPACING_STORAGE_KEY='waylandSquarePrintSpacingScaleV1';
+const PRINT_SETTINGS_STORAGE_KEY='waylandSquarePrintScaleAndSpacingV2';
 
 const DECOR_STORAGE_KEY='waylandSquareDecorStable';
 let decorSettings = {greenTint:false, trees:true};
@@ -1608,6 +1664,9 @@ window.addEventListener('load', () => {
   // Load saved decor before building previews so nearby box/compass/trees reappear after reopening.
   loadDecor();
   renderDecorations();
+
+  // Reload last-used print scale and print spacing before building previews.
+  loadPrintSettings();
 
   renderPreview();
   renderPrintPreviews();
