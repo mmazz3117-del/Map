@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v94 Restore Detailed Basemap</title>
+<title>Wayland Square Postcard Project Manager — v96 Pin Undo & Category Restore</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -17,6 +17,7 @@
   button, input, select, textarea { font:inherit; }
   button, input, select { border:1px solid #b8c3ca; border-radius:8px; padding:8px 10px; background:white; color:var(--navy); font-weight:700; white-space:nowrap; }
   button { cursor:pointer; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
   button.active { background:var(--gold); border-color:var(--gold); color:#102a3a; }
   .tabPanel { display:none; }
   .tabPanel.active { display:block; }
@@ -348,7 +349,7 @@
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v94 Restore Detailed Basemap</h1>
+  <h1>Wayland Square Postcard Project Manager v96 Pin Undo & Category Restore</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -375,7 +376,7 @@
         <input id="printPinSpread" type="range" min="100" max="155" value="120" oninput="savePrintSettings()">
         <span id="printPinSpreadLabel" class="pinValueBadge">120%</span>
       </div>
-      <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button></div>
+      <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button><button id="undoPinBtn" onclick="undoPinChange()" disabled>↶ Undo Pin Change</button><button id="redoPinBtn" onclick="redoPinChange()" disabled>↷ Redo</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button><button onclick="restoreCategoryColors()">Restore Category Colors</button></div>
       <div class="controlGroup decorGroup">
         <span>Decor</span>
         <button class="btnTiny" onclick="toggleGreenTint()">Greens</button>
@@ -459,7 +460,7 @@
   <div class="printIntro">
     <h2>Print Production Preview</h2>
     <p><strong>Best print path:</strong> finish the directory and pins here, click <strong>Refresh Print Preview</strong>, then use <strong>Print / Save Both Sides PDF</strong>. In the print dialog, choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, and turn off browser headers/footers. The SVG download is a design file and will open in Chrome; use Chrome’s Print > Save as PDF if you need a PDF from it.</p>
-    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file.</p>
+    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines.</p>
   </div>
   <div id="printPages" class="printPages">
     <div id="printDirectoryPage" class="printPage printDirectoryPage postcard"></div>
@@ -961,6 +962,12 @@ function savePrintSpacingSetting() { savePrintSettings(true); }
 const viewport = document.getElementById('viewport'), world = document.getElementById('world'), zoomLabel = document.getElementById('zoomLabel'), statusEl = document.getElementById('status'), pinSizeInput = document.getElementById('pinSize'), pinSizeLabel = document.getElementById('pinSizeLabel'), pinColorInput = document.getElementById('pinColor'), pinDirectionInput = document.getElementById('pinDirection'), pinBorderInput = document.getElementById('pinBorder'), pinBorderLabel = document.getElementById('pinBorderLabel'), leaderEnabledInput = document.getElementById('leaderEnabled'), leaderWidthInput = document.getElementById('leaderWidth'), leaderWidthLabel = document.getElementById('leaderWidthLabel'), leaderLayer = document.getElementById('leaderLayer'), leaderAnchorHandle = document.getElementById('leaderAnchorHandle');
 let scale=1, panX=0, panY=0, mode='pan', isPanning=false, panStart={x:0,y:0,panX:0,panY:0}, selected=null, pinsVisible=true, draggedPin=null, draggedAnchor=false;
 const MAP_W=1658, MAP_H=1448, PIN_STORAGE_KEY='waylandSquarePinsV44DecorLayers';
+const PIN_UNDO_STORAGE_KEY='waylandSquarePinUndoHistoryV1';
+const PIN_REDO_STORAGE_KEY='waylandSquarePinRedoHistoryV1';
+const MAX_PIN_HISTORY=30;
+let pinUndoStack=[];
+let pinRedoStack=[];
+let restoringPinHistory=false;
 const PRINT_SPACING_STORAGE_KEY='waylandSquarePrintSpacingScaleV1';
 const PRINT_SETTINGS_STORAGE_KEY='waylandSquarePrintScaleAndSpacingV2';
 
@@ -1344,6 +1351,7 @@ function previewLeaderControls() {
 }
 function applyLeaderToSelected() {
   if (!selected) return statusEl.textContent = 'No pin selected.';
+  capturePinHistory('Change leader line');
   const wasEnabled = leaderEnabled(selected);
   if (leaderEnabledInput?.checked && !wasEnabled) {
     const tip = pinTipPoint(selected);
@@ -1358,6 +1366,7 @@ function applyLeaderToSelected() {
 
 function deleteLeaderFromSelected() {
   if (!selected) return statusEl.textContent = 'No pin selected.';
+  capturePinHistory('Delete leader line');
   setPinLeader(selected, {enabled:false});
   if (leaderEnabledInput) leaderEnabledInput.checked = false;
   renderLeaderLines();
@@ -1367,6 +1376,7 @@ function deleteLeaderFromSelected() {
 }
 function resetLeaderAnchorToPin() {
   if (!selected) return statusEl.textContent = 'No pin selected.';
+  capturePinHistory('Reset leader anchor');
   const tip = pinTipPoint(selected);
   setPinLeader(selected, {enabled: true, anchorX: tip.x, anchorY: tip.y, width: Number(leaderWidthInput?.value || selected.dataset.leaderWidth || 1.5)});
   if (leaderEnabledInput) leaderEnabledInput.checked = true;
@@ -1423,6 +1433,118 @@ function endLeaderAnchorDrag(e) {
   return true;
 }
 
+const CATEGORY_PIN_COLORS = {
+  'Dining & Cafés': '#c86337',
+  'Retail & Specialty': '#2d7b86',
+  'Wellness, Beauty & Fitness': '#8a4f7f',
+  'Professional & Financial': '#4f6fa5',
+  'Services & Education': '#ca932b',
+  'Services': '#ca932b'
+};
+function persistPinHistory() {
+  try {
+    localStorage.setItem(PIN_UNDO_STORAGE_KEY, JSON.stringify(pinUndoStack));
+    localStorage.setItem(PIN_REDO_STORAGE_KEY, JSON.stringify(pinRedoStack));
+  } catch(e) {}
+  updatePinHistoryButtons();
+}
+function loadPinHistory() {
+  try {
+    pinUndoStack = JSON.parse(localStorage.getItem(PIN_UNDO_STORAGE_KEY) || '[]');
+    pinRedoStack = JSON.parse(localStorage.getItem(PIN_REDO_STORAGE_KEY) || '[]');
+    if (!Array.isArray(pinUndoStack)) pinUndoStack = [];
+    if (!Array.isArray(pinRedoStack)) pinRedoStack = [];
+  } catch(e) {
+    pinUndoStack = [];
+    pinRedoStack = [];
+  }
+  updatePinHistoryButtons();
+}
+function updatePinHistoryButtons() {
+  const undoBtn = document.getElementById('undoPinBtn');
+  const redoBtn = document.getElementById('redoPinBtn');
+  if (undoBtn) {
+    undoBtn.disabled = pinUndoStack.length === 0;
+    undoBtn.title = pinUndoStack.length ? `Undo: ${pinUndoStack[pinUndoStack.length - 1].label || 'pin change'}` : 'No pin changes to undo';
+  }
+  if (redoBtn) {
+    redoBtn.disabled = pinRedoStack.length === 0;
+    redoBtn.title = pinRedoStack.length ? `Redo: ${pinRedoStack[pinRedoStack.length - 1].label || 'pin change'}` : 'No pin changes to redo';
+  }
+}
+function capturePinHistory(label='Pin change') {
+  if (restoringPinHistory) return;
+  const data = JSON.stringify(getPinData());
+  const last = pinUndoStack[pinUndoStack.length - 1];
+  if (!last || last.data !== data) {
+    pinUndoStack.push({label, data, time:Date.now()});
+    if (pinUndoStack.length > MAX_PIN_HISTORY) pinUndoStack.shift();
+  }
+  pinRedoStack = [];
+  persistPinHistory();
+}
+function restorePinHistorySnapshot(snapshot) {
+  let data;
+  try { data = JSON.parse(snapshot); } catch(e) { return false; }
+  if (!Array.isArray(data)) return false;
+  restoringPinHistory = true;
+  try {
+    document.querySelectorAll('.pin').forEach(p => p.remove());
+    selected = null;
+    data.forEach(addPin);
+    selectPin(null);
+  } finally {
+    restoringPinHistory = false;
+  }
+  renderLeaderLines();
+  renderPrintPreviews();
+  savePinsLocal(false);
+  return true;
+}
+function undoPinChange() {
+  if (!pinUndoStack.length) return statusEl.textContent = 'No pin changes to undo.';
+  const entry = pinUndoStack.pop();
+  pinRedoStack.push({label:entry.label, data:JSON.stringify(getPinData()), time:Date.now()});
+  if (pinRedoStack.length > MAX_PIN_HISTORY) pinRedoStack.shift();
+  if (restorePinHistorySnapshot(entry.data)) statusEl.textContent = `Undid: ${entry.label || 'pin change'}.`;
+  persistPinHistory();
+}
+function redoPinChange() {
+  if (!pinRedoStack.length) return statusEl.textContent = 'No pin changes to redo.';
+  const entry = pinRedoStack.pop();
+  pinUndoStack.push({label:entry.label, data:JSON.stringify(getPinData()), time:Date.now()});
+  if (pinUndoStack.length > MAX_PIN_HISTORY) pinUndoStack.shift();
+  if (restorePinHistorySnapshot(entry.data)) statusEl.textContent = `Redid: ${entry.label || 'pin change'}.`;
+  persistPinHistory();
+}
+function restoreCategoryColors() {
+  const pins = [...document.querySelectorAll('.pin')];
+  if (!pins.length) return statusEl.textContent = 'There are no pins to recolor.';
+  if (!confirm('Restore each pin to its current directory category color? Pin positions, sizes, directions, outlines, and leader lines will stay unchanged.')) return;
+  capturePinHistory('Restore category colors');
+  let changed = 0;
+  const missing = [];
+  pins.forEach(pin => {
+    const business = businessByNumber(pin.dataset.n);
+    const color = business ? CATEGORY_PIN_COLORS[business.category] : null;
+    if (!color) { missing.push(pin.dataset.n); return; }
+    setPinStyle(pin, {
+      size:Number(pin.dataset.size || 30),
+      color,
+      textColor:pin.dataset.textColor || '#fff',
+      direction:pin.dataset.direction || 'down',
+      border:Number(pin.dataset.border ?? 1)
+    });
+    changed++;
+  });
+  renderLeaderLines();
+  renderPrintPreviews();
+  savePinsLocal(false);
+  statusEl.textContent = missing.length
+    ? `Restored category colors for ${changed} pins. No category color was found for: ${missing.join(', ')}.`
+    : `Restored category colors for all ${changed} pins.`;
+}
+
 function currentPinStyle() { return {size:Math.max(8, Number(pinSizeInput.value)), color:pinColorInput.value, textColor:'#ffffff', direction:(pinDirectionInput?.value || 'down'), border:Number(pinBorderInput?.value ?? 1)}; }
 function previewPinSettings() {
   pinSizeLabel.textContent = pinSizeInput.value;
@@ -1435,7 +1557,7 @@ function previewPinSettings() {
   if (printSpreadInput && printSpreadLabel) printSpreadLabel.textContent = printSpreadInput.value + '%';
   previewLeaderControls();
 }
-function setPresetColor(color, label) { pinColorInput.value = color; previewPinSettings(); if (selected) { setPinStyle(selected, currentPinStyle()); savePinsLocal(false); statusEl.textContent = `Applied ${label} color to #${selected.dataset.n}.`; } else { statusEl.textContent = `${label} color preset selected. Click a pin or add one, then use Apply Selected/All if needed.`; } }
+function setPresetColor(color, label) { pinColorInput.value = color; previewPinSettings(); if (selected) { capturePinHistory(`Apply ${label} color`); setPinStyle(selected, currentPinStyle()); savePinsLocal(false); statusEl.textContent = `Applied ${label} color to #${selected.dataset.n}.`; } else { statusEl.textContent = `${label} color preset selected. Click a pin or add one, then use Apply Selected/All if needed.`; } }
 function setPinStyle(pin, style) {
   const size=Number(style.size||30), color=style.color||'#062f45', textColor=style.textColor||'#fff';
   const direction=style.direction || pin.dataset.direction || 'down';
@@ -1452,8 +1574,8 @@ function setPinStyle(pin, style) {
   pin.classList.remove('dir-down','dir-up','dir-left','dir-right');
   pin.classList.add('dir-' + direction);
 }
-function applyStyleToSelected() { if(!selected) return statusEl.textContent='No pin selected.'; setPinStyle(selected,currentPinStyle()); renderLeaderLines(); savePinsLocal(false); }
-function applyStyleToAll() { document.querySelectorAll('.pin').forEach(p=>setPinStyle(p,currentPinStyle())); renderLeaderLines(); savePinsLocal(false); }
+function applyStyleToSelected() { if(!selected) return statusEl.textContent='No pin selected.'; capturePinHistory('Apply style to selected pin'); setPinStyle(selected,currentPinStyle()); renderLeaderLines(); renderPrintPreviews(); savePinsLocal(false); statusEl.textContent=`Style applied to #${selected.dataset.n}.`; }
+function applyStyleToAll() { const pins=[...document.querySelectorAll('.pin')]; if(!pins.length) return statusEl.textContent='There are no pins to update.'; if(!confirm(`Apply the current size, color, direction, and outline to all ${pins.length} pins?`)) return; capturePinHistory('Apply style to all pins'); pins.forEach(p=>setPinStyle(p,currentPinStyle())); renderLeaderLines(); renderPrintPreviews(); savePinsLocal(false); statusEl.textContent=`Applied the current style to all ${pins.length} pins. Use Undo Pin Change to reverse it.`; }
 function addPinAtCenter() { const r=viewport.getBoundingClientRect(); const p=screenToMap(r.left+r.width/2,r.top+r.height/2); addPin({x:p.x,y:p.y}); }
 function addPin(data={}) { const n=data.n ?? document.getElementById('pinNumber').value; const b=businessByNumber(n); const label=data.label ?? (b ? b.name : `Pin ${n}`); const pin=document.createElement('div'); pin.className='pin'; pin.dataset.n=n; pin.dataset.label=label; pin.style.left=(data.x ?? MAP_W/2)+'px'; pin.style.top=(data.y ?? MAP_H/2)+'px'; pin.innerHTML=`<span class="num">${pad(n)}</span><small>${escapeHTML(label)}</small>`; setPinStyle(pin, {size:data.size ?? Number(pinSizeInput.value), color:data.color ?? pinColorInput.value, textColor:data.textColor ?? '#fff', direction:data.direction ?? 'down', border:data.border ?? Number(pinBorderInput?.value ?? 1)}); setPinLeader(pin, {enabled:(data.leaderEnabled ?? false), anchorX:(data.anchorX ?? data.x ?? MAP_W/2), anchorY:(data.anchorY ?? data.y ?? MAP_H/2), width:(data.leaderWidth ?? 1.5)}); pin.addEventListener('pointerdown', startPinDrag); pin.addEventListener('click', e => { e.stopPropagation(); selectPin(pin); }); world.appendChild(pin); selectPin(pin); renderLeaderLines(); document.getElementById('pinNumber').value=Math.min(99,Number(n)+1); savePinsLocal(false); }
 function selectPin(pin) {
@@ -1481,12 +1603,12 @@ function endPinDrag(e) { if(!draggedPin) return; draggedPin.releasePointerCaptur
 function getPinData() { return [...document.querySelectorAll('.pin')].map(pin=>({n:pin.dataset.n,label:pin.dataset.label,x:Math.round(parseFloat(pin.style.left)),y:Math.round(parseFloat(pin.style.top)),size:Number(pin.dataset.size||30),color:pin.dataset.color||'#062f45',textColor:pin.dataset.textColor||'#fff',direction:pin.dataset.direction||'down',border:Number(pin.dataset.border??1),leaderEnabled:leaderEnabled(pin),anchorX:Number(pin.dataset.anchorX ?? Math.round(parseFloat(pin.style.left))),anchorY:Number(pin.dataset.anchorY ?? Math.round(parseFloat(pin.style.top))),leaderWidth:Number(pin.dataset.leaderWidth ?? 1.5)})).sort((a,b)=>Number(a.n)-Number(b.n)); }
 function syncPinLabels() { document.querySelectorAll('.pin').forEach(pin => { const b=businessByNumber(pin.dataset.n); if(b) { pin.dataset.label=b.name; const sm=pin.querySelector('small'); if(sm) sm.textContent=b.name; } }); }
 function exportPins() { document.getElementById('pinData').value=JSON.stringify(getPinData(),null,2); document.getElementById('pinPanel').classList.add('open'); }
-function importPins() { try { const data=JSON.parse(document.getElementById('pinData').value); clearPins(false); data.forEach(addPin); savePinsLocal(false); } catch(e) { alert('Could not import pin JSON.'); } }
+function importPins() { try { const data=JSON.parse(document.getElementById('pinData').value); capturePinHistory('Import pins'); clearPins(false); data.forEach(addPin); savePinsLocal(false); } catch(e) { alert('Could not import pin JSON.'); } }
 async function copyPins() { await navigator.clipboard.writeText(document.getElementById('pinData').value || JSON.stringify(getPinData(),null,2)); }
 function downloadJSON() { const blob=new Blob([JSON.stringify(getPinData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='wayland_square_pin_positions.json'; a.click(); URL.revokeObjectURL(a.href); }
-function savePinsLocal(show=true) { localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(getPinData())); if(show) alert('Pins saved in this browser.'); }
+function savePinsLocal(show=true) { if(restoringPinHistory) return; localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(getPinData())); if(show) alert('Pins saved in this browser.'); }
 function loadPinsLocal() { const raw=localStorage.getItem(PIN_STORAGE_KEY); if(!raw) return alert('No saved pins found.'); document.getElementById('pinData').value=raw; importPins(); }
-function clearPins(confirmFirst=true) { if(confirmFirst && !confirm('Clear all pins?')) return; document.querySelectorAll('.pin').forEach(p=>p.remove()); selected=null; renderLeaderLines(); savePinsLocal(false); }
+function clearPins(confirmFirst=true) { if(confirmFirst && !confirm('Clear all pins?')) return; if(confirmFirst) capturePinHistory('Clear all pins'); document.querySelectorAll('.pin').forEach(p=>p.remove()); selected=null; renderLeaderLines(); savePinsLocal(false); }
 function togglePins() { pinsVisible=!pinsVisible; document.querySelectorAll('.pin').forEach(p=>p.style.display=pinsVisible?'flex':'none'); leaderLayer.style.display = pinsVisible ? 'block' : 'none'; leaderAnchorHandle.classList.toggle('hidden', !pinsVisible || !(selected && leaderEnabled(selected))); }
 function togglePinPanel() { document.getElementById('pinPanel').classList.toggle('open'); }
 function drawPinOnCanvas(ctx,pin) { const x=parseFloat(pin.style.left), y=parseFloat(pin.style.top), size=Number(pin.dataset.size||30), color=pin.dataset.color||'#062f45', textColor=pin.dataset.textColor||'#fff', n=pad(pin.dataset.n); const r=size*.42,cx=x,cy=y-size*.58; ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*.82,Math.PI*2.18,false); ctx.quadraticCurveTo(x+size*.22,y-size*.20,x,y); ctx.quadraticCurveTo(x-size*.22,y-size*.20,cx-r,cy); ctx.closePath(); ctx.fillStyle=color; ctx.strokeStyle='white'; ctx.lineWidth=Math.max(2,size*.08); ctx.shadowColor='rgba(0,0,0,.28)'; ctx.shadowBlur=size*.10; ctx.shadowOffsetY=size*.06; ctx.fill(); ctx.shadowColor='transparent'; ctx.stroke(); ctx.fillStyle=textColor; ctx.font=`900 ${Math.round(size*.34)}px Arial`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n,cx,cy+size*.01); ctx.restore(); }
@@ -1650,7 +1772,24 @@ function downloadSVG() {
   statusEl.textContent = 'Downloaded map-side SVG. To make a PDF, open it and choose Print > Save as PDF.';
 }
 
-document.addEventListener('keydown', e => { if((e.key==='Delete'||e.key==='Backspace') && selected) { selected.remove(); selected=null; savePinsLocal(false); } if(e.key==='h'||e.key==='H') setMode('pan'); if(e.key==='p'||e.key==='P') setMode('pin'); });
+document.addEventListener('keydown', e => {
+  const tag = String(e.target?.tagName || '').toLowerCase();
+  const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target?.isContentEditable;
+  if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    if (e.shiftKey) redoPinChange(); else undoPinChange();
+    return;
+  }
+  if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+    e.preventDefault(); redoPinChange(); return;
+  }
+  if(!typing && (e.key==='Delete'||e.key==='Backspace') && selected) {
+    capturePinHistory('Delete pin');
+    selected.remove(); selected=null; renderLeaderLines(); renderPrintPreviews(); savePinsLocal(false);
+  }
+  if(!typing && (e.key==='h'||e.key==='H')) setMode('pan');
+  if(!typing && (e.key==='p'||e.key==='P')) setMode('pin');
+});
 window.addEventListener('resize', () => { if(document.getElementById('mapTab').classList.contains('active')) fitMap(); });
 window.addEventListener('load', () => {
   renderBusinessTable();
@@ -1674,6 +1813,7 @@ window.addEventListener('load', () => {
   setTimeout(fitMap, 250);
   const saved=localStorage.getItem(PIN_STORAGE_KEY);
   if(saved) { try { JSON.parse(saved).forEach(addPin); syncPinLabels(); } catch(e){} }
+  loadPinHistory();
   renderLeaderLines();
 });
 </script>
