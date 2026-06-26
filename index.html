@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v97 Directory Sync</title>
+<title>Wayland Square Postcard Project Manager — v102 Map Logo Only</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -132,6 +132,75 @@
   .directoryGrid.denseDir .dirSectionHeader { margin-bottom:.020in; }
   .directoryGrid.denseDir .dirSectionDivider { margin-bottom:.020in; }
   .directoryGrid.denseDir .dirColumn { gap:.040in; }
+  .directoryGrid.dirFit-compact { column-gap:.13in; }
+  .directoryGrid.dirFit-compact .dirBiz { margin-bottom:.014in; font-size:6.95pt; line-height:1.01; }
+  .directoryGrid.dirFit-compact .dirAddr { font-size:5.90pt; margin-top:.006in; line-height:1.06; }
+  .directoryGrid.dirFit-compact .dirSectionHeader { margin-bottom:.016in; }
+  .directoryGrid.dirFit-compact .dirSectionDivider { margin-bottom:.016in; }
+  .directoryGrid.dirFit-compact .dirColumn { gap:.028in; }
+  .directoryGrid.dirFit-compact .dirSectionTitle { font-size:8.7pt; }
+  .directoryGrid.dirFit-compact .dirSectionRange { font-size:6.7pt; }
+
+  .directoryGrid.dirFit-extra { column-gap:.12in; }
+  .directoryGrid.dirFit-extra .dirBiz { grid-template-columns:.18in 1fr; gap:.032in; margin-bottom:.006in; font-size:6.50pt; line-height:1; }
+  .directoryGrid.dirFit-extra .dirAddr { font-size:5.35pt; margin-top:0; line-height:1.01; }
+  .directoryGrid.dirFit-extra .dirNum { width:.165in; min-width:.165in; height:.145in; font-size:5.95pt; }
+  .directoryGrid.dirFit-extra .dirSectionHeader { gap:.035in; margin-bottom:.010in; }
+  .directoryGrid.dirFit-extra .dirSectionDivider { margin-bottom:.010in; }
+  .directoryGrid.dirFit-extra .dirColumn { gap:.016in; }
+  .directoryGrid.dirFit-extra .dirSection { margin-bottom:0; }
+  .directoryGrid.dirFit-extra .dirSectionTitle { font-size:8.15pt; }
+  .directoryGrid.dirFit-extra .dirSectionRange { font-size:6.15pt; }
+  .directoryGrid.dirFit-extra .dirAccent { width:.038in; height:.14in; }
+
+  .directoryGrid.dirFit-ultra { column-gap:.10in; }
+  .directoryGrid.dirFit-ultra .dirBiz { grid-template-columns:.17in 1fr; gap:.026in; margin-bottom:.002in; font-size:6.10pt; line-height:.98; }
+  .directoryGrid.dirFit-ultra .dirAddr { font-size:5.00pt; margin-top:0; line-height:1; }
+  .directoryGrid.dirFit-ultra .dirNum { width:.155in; min-width:.155in; height:.135in; font-size:5.55pt; }
+  .directoryGrid.dirFit-ultra .dirSectionHeader { gap:.030in; margin-bottom:.006in; }
+  .directoryGrid.dirFit-ultra .dirSectionDivider { margin-bottom:.006in; }
+  .directoryGrid.dirFit-ultra .dirColumn { gap:.008in; }
+  .directoryGrid.dirFit-ultra .dirSection { margin-bottom:0; }
+  .directoryGrid.dirFit-ultra .dirSectionTitle { font-size:7.8pt; }
+  .directoryGrid.dirFit-ultra .dirSectionRange { font-size:5.9pt; }
+  .directoryGrid.dirFit-ultra .dirAccent { width:.034in; height:.13in; }
+
+  .directoryGrid.dirFit-percent { column-gap:var(--dir-column-gap,.16in); }
+  .directoryGrid.dirFit-percent .dirBiz {
+    grid-template-columns:var(--dir-num-column,.20in) 1fr;
+    gap:var(--dir-biz-gap,.042in);
+    margin-bottom:var(--dir-biz-margin,.024in);
+    font-size:var(--dir-biz-font,7.45pt);
+    line-height:var(--dir-biz-line,1.05);
+  }
+  .directoryGrid.dirFit-percent .dirAddr {
+    font-size:var(--dir-addr-font,6.35pt);
+    margin-top:var(--dir-addr-margin,.012in);
+    line-height:var(--dir-addr-line,1.14);
+  }
+  .directoryGrid.dirFit-percent .dirNum {
+    width:var(--dir-num-width,.18in);
+    min-width:var(--dir-num-width,.18in);
+    height:var(--dir-num-height,.16in);
+    font-size:var(--dir-num-font,6.65pt);
+    margin-top:var(--dir-num-margin,.005in);
+  }
+  .directoryGrid.dirFit-percent .dirSectionHeader {
+    gap:var(--dir-header-gap,.045in);
+    margin-bottom:var(--dir-header-margin,.026in);
+  }
+  .directoryGrid.dirFit-percent .dirSectionDivider { margin-bottom:var(--dir-divider-margin,.026in); }
+  .directoryGrid.dirFit-percent .dirColumn { gap:var(--dir-column-row-gap,.06in); }
+  .directoryGrid.dirFit-percent .dirSection { margin-bottom:var(--dir-section-margin,.01in); }
+  .directoryGrid.dirFit-percent .dirSectionTitle { font-size:var(--dir-title-font,9.1pt); }
+  .directoryGrid.dirFit-percent .dirSectionRange { font-size:var(--dir-range-font,7.2pt); }
+  .directoryGrid.dirFit-percent .dirAccent {
+    width:var(--dir-accent-width,.045in);
+    height:var(--dir-accent-height,.16in);
+  }
+  .directoryPercentGroup input[type="range"] { width:130px; }
+  .dirLogoSpacer { width:100%; flex:0 0 auto; pointer-events:none; }
+  .directoryFitStatus { font-size:12px; font-weight:700; color:#526673; min-width:86px; }
   .dirColumn { display:flex; flex-direction:column; gap:.06in; }
   .dirSection { break-inside:avoid; margin:0 0 .01in; }
   .dirSectionHeader {
@@ -349,7 +418,7 @@
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v97 Directory Sync</h1>
+  <h1>Wayland Square Postcard Project Manager v102 Map Logo Only</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -411,7 +480,8 @@
 <section id="directoryTab" class="tabPanel">
   <div class="toolbar">
     <button onclick="addBusiness()">Add Business</button>
-    <button onclick="sortBusinesses()">Sort by #</button>
+    <div class="controlGroup"><label for="directoryViewSort">Editor View</label><select id="directoryViewSort" onchange="updateDirectoryViewSort()"><option value="number">Map Number</option><option value="name">Business Name A–Z</option><option value="address">Address</option></select><span class="hintMini">View only</span></div>
+    <div class="controlGroup directoryPercentGroup"><label><input id="directoryAutoFit" type="checkbox" checked onchange="updateDirectoryAutoFit()"> Auto Fit</label><label for="directoryScalePercent">Directory Size</label><input id="directoryScalePercent" type="range" min="82" max="105" step="1" value="95" oninput="updateDirectoryScalePercent()"><span id="directoryScaleLabel" class="pinValueBadge">95%</span><span id="directoryFitStatus" class="directoryFitStatus">Auto</span></div>
     <button onclick="saveDirectoryLocal()">Save Directory</button>
     <button onclick="resetDirectory()">Reset to Uploaded PDF Data</button>
     <button onclick="exportDirectoryJSON()">Export Directory JSON</button>
@@ -422,19 +492,20 @@
   </div>
   <div class="editorWrap">
     <div class="editorGrid">
-      <div class="card"><div class="cardHeader"><h2>Editable Business Directory</h2><span id="businessCount">52 businesses</span></div><div class="cardBody"><p class="hint">Edit names, addresses, numbers, and categories here. The postcard preview and pin labels update from this list.</p><table id="businessTable"><thead><tr><th class="numCell">Map #</th><th class="catCell">Category</th><th>Business</th><th>Address</th><th class="actionCell">Delete</th></tr></thead><tbody></tbody></table></div></div>
+      <div class="card"><div class="cardHeader"><h2>Editable Business Directory</h2><span id="businessCount">52 businesses</span></div><div class="cardBody"><p class="hint">Edit names, addresses, numbers, and categories here. Use Editor View to sort this table without changing the printed directory or saved numbering.</p><table id="businessTable"><thead><tr><th class="numCell">Map #</th><th class="catCell">Category</th><th>Business</th><th>Address</th><th class="actionCell">Delete</th></tr></thead><tbody></tbody></table></div></div>
       <div class="card"><div class="cardHeader"><h2>Project Data</h2></div><div class="cardBody"><p class="hint">Use this box to copy/save the directory or the full project. For website use later, this data can become the source file.</p><textarea id="directoryData" placeholder="Exported directory/project JSON will appear here."></textarea><div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;"><button onclick="copyDirectoryBox()">Copy Box</button><button onclick="downloadProjectJSON()">Download Full Project JSON</button><button onclick="loadDirectoryLocal()">Load Browser Save</button></div></div></div>
 
       <div class="card"><div class="cardHeader"><h2>Branding</h2></div><div class="cardBody">
-        <p class="hint">Your Wayland Square logo is built in as the default identifier for both postcard sides. You can still upload a replacement logo anytime.</p>
+        <p class="hint">Your Wayland Square logo is built in as the default identifier for the map side. The directory page now omits the logo to preserve space. You can still upload a replacement logo anytime.</p>
         <div class="brandSettingsGrid">
           <div class="brandControls">
             <div class="row"><label for="brandLogoInput">Logo</label><input id="brandLogoInput" type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" onchange="handleLogoUpload(this)"><button type="button" onclick="restoreDefaultLogo()">Restore Default Logo</button><button type="button" onclick="clearLogo()">Clear Logo</button></div>
             <div class="row"><label for="brandSize">Logo Size</label><input id="brandSize" type="range" min="40" max="120" value="58" oninput="updateBrandSetting()"><span id="brandSizeLabel">58</span></div>
             <div class="row"><label for="brandPosition">Placement</label><select id="brandPosition" onchange="updateBrandSetting()"><option value="bottom-right" selected>Bottom Right</option><option value="bottom-left">Bottom Left</option><option value="top-right">Top Right</option><option value="top-left">Top Left</option></select></div>
+            <div class="row" style="opacity:.55"><label for="brandDirectoryLift">Directory Logo Raise</label><input id="brandDirectoryLift" type="range" min="0" max="80" value="28" oninput="updateBrandSetting()" disabled><span id="brandDirectoryLiftLabel">not used</span></div>
             <div class="row"><label for="brandShow"><input id="brandShow" type="checkbox" checked onchange="updateBrandSetting()"> Show branding on pages</label></div>
             <div class="row"><button type="button" onclick="saveBrandLocal()">Save Branding</button><button type="button" onclick="loadBrandLocal()">Load Branding</button></div>
-            <div class="hintMini">Note: this preview has been adjusted to use cleaner, easier-to-read directory typography while keeping the same color/layout direction. The map-side title is still baked into the base map image.</div>
+            <div class="hintMini">Note: this preview uses cleaner, easier-to-read directory typography while keeping the same color/layout direction. The map-side title is still baked into the base map image. The directory page now omits the logo; branding appears on the map side only.</div>
           </div>
           <div><div id="brandPreviewBox" class="brandPreviewBox"><div class="brandMonogram">WS</div></div></div>
         </div>
@@ -460,7 +531,7 @@
   <div class="printIntro">
     <h2>Print Production Preview</h2>
     <p><strong>Best print path:</strong> finish the directory and pins here, click <strong>Refresh Print Preview</strong>, then use <strong>Print / Save Both Sides PDF</strong>. In the print dialog, choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, and turn off browser headers/footers. The SVG download is a design file and will open in Chrome; use Chrome’s Print > Save as PDF if you need a PDF from it.</p>
-    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines. v97 synchronizes the built-in directory with pins 52–56 and automatically adds those missing businesses to an older saved directory without disturbing entries 1–51.</p>
+    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines. v97 synchronizes the built-in directory with pins 52–56 and automatically adds those missing businesses to an older saved directory without disturbing entries 1–51. v98 embeds the current 59-business project, adds Directory Auto Fit modes, reserves clear space around the bottom logo, and adds a Directory Logo Raise control without moving the map-side logo. v99 removes the directory instruction line to free vertical space and adds view-only editor sorting by map number, business name, or address without changing the printed directory, numbering, or saved business order. v100 replaces the coarse directory-fit choices with exact percentage sizing. Auto Fit now searches in 1% increments for the largest size that fits, and moving the Directory Size slider automatically switches to manual control. v101 restores the editor table and view-only sorting functions that were accidentally omitted in v100. v102 removes the directory-side logo so branding stays on the map side only and no longer overlaps the Services section.</p>
   </div>
   <div id="printPages" class="printPages">
     <div id="printDirectoryPage" class="printPage printDirectoryPage postcard"></div>
@@ -469,34 +540,228 @@
 </section>
 
 <script>
-const defaultBusinesses = [{"number": 1, "name": "L'Artisan Cafe & Bakery", "address": "9 Wayland Square", "category": "Dining & Cafés"}, {"number": 2, "name": "McBride's Irish Pub", "address": "161 Wayland Ave", "category": "Dining & Cafés"}, {"number": 3, "name": "Madrid European Bakery", "address": "199 Wayland Ave", "category": "Dining & Cafés"}, {"number": 4, "name": "Mare Rooftop", "address": "229 Waterman Street", "category": "Dining & Cafés"}, {"number": 5, "name": "Red Stripe", "address": "465 Angell Street", "category": "Dining & Cafés"}, {"number": 6, "name": "Pasta Beach Providence", "address": "195 Wayland Ave", "category": "Dining & Cafés"}, {"number": 7, "name": "Diego's East Side", "address": "192 Wayland Ave", "category": "Dining & Cafés"}, {"number": 8, "name": "Maiz Mexican Restaurant", "address": "20 S Angell Street", "category": "Dining & Cafés"}, {"number": 9, "name": "Lim's Fine Thai & Sushi Restaurant", "address": "18 S Angell Street", "category": "Dining & Cafés"}, {"number": 10, "name": "Haruki East", "address": "172 Wayland Ave", "category": "Dining & Cafés"}, {"number": 11, "name": "Starbucks Wayland Square", "address": "468 Angell Street", "category": "Dining & Cafés"}, {"number": 12, "name": "Wayland Fresh", "address": "229 Waterman St", "category": "Dining & Cafés"}, {"number": 13, "name": "Estiatorio Fili", "address": "225 Waterman St", "category": "Dining & Cafés"}, {"number": 14, "name": "Ocean State Spice & Tea Merchants", "address": "225 Wayland Avenue", "category": "Retail & Specialty"}, {"number": 15, "name": "East Side Cheese & Provisions", "address": "17 S. Angell Street", "category": "Retail & Specialty"}, {"number": 16, "name": "Reliable Gold Ltd.", "address": "9 Wayland Square", "category": "Retail & Specialty"}, {"number": 17, "name": "Opt Eyewear Boutique", "address": "141 Wayland Ave", "category": "Retail & Specialty"}, {"number": 18, "name": "lululemon Wayland Square", "address": "195-201 Wayland Avenue", "category": "Retail & Specialty"}, {"number": 19, "name": "Green Ink Boutique", "address": "199 Wayland Avenue", "category": "Retail & Specialty"}, {"number": 20, "name": "Coco Goose", "address": "195 Wayland Ave", "category": "Retail & Specialty"}, {"number": 21, "name": "West Elm Wayland Ave", "address": "179 Wayland Ave", "category": "Retail & Specialty"}, {"number": 22, "name": "Mrs. Robinson Fine Lingerie", "address": "180 Wayland Avenue", "category": "Retail & Specialty"}, {"number": 23, "name": "BORA Handcrafted Jewelry", "address": "210 Wayland Ave", "category": "Retail & Specialty"}, {"number": 24, "name": "Wendy Brown Home", "address": "190 Wayland Ave", "category": "Retail & Specialty"}, {"number": 25, "name": "J.McLaughlin Providence", "address": "497 Angell St", "category": "Retail & Specialty"}, {"number": 26, "name": "Books on the Square", "address": "471 Angell Street", "category": "Retail & Specialty"}, {"number": 27, "name": "Paper Nautilus Books", "address": "19 South Angell Street", "category": "Retail & Specialty"}, {"number": 28, "name": "Milan Providence Clothiers", "address": "178 Wayland Ave", "category": "Retail & Specialty"}, {"number": 29, "name": "Speidel Flagship Store & Watch Center", "address": "145 Wayland Avenue", "category": "Retail & Specialty"}, {"number": 30, "name": "Sole Desire x Run Newport PVD", "address": "493 Angell St", "category": "Retail & Specialty"}, {"number": 31, "name": "CVS Pharmacy", "address": "481 Angell Street", "category": "Retail & Specialty"}, {"number": 32, "name": "Barre & Soul Providence", "address": "201 Wayland Ave", "category": "Wellness, Beauty & Fitness"}, {"number": 33, "name": "SkinCeuticals SkinLab Providence", "address": "206 Wayland Ave", "category": "Wellness, Beauty & Fitness"}, {"number": 34, "name": "CORE Studios", "address": "229 Waterman St", "category": "Wellness, Beauty & Fitness"}, {"number": 35, "name": "Body Kneads, Inc.", "address": "251 Waterman Street", "category": "Wellness, Beauty & Fitness"}, {"number": 36, "name": "Wonderland Yoga Studio", "address": "129 Wayland Ave", "category": "Wellness, Beauty & Fitness"}, {"number": 37, "name": "European Wax Center Providence - Wayland Ave", "address": "200 Wayland Avenue", "category": "Wellness, Beauty & Fitness"}, {"number": 38, "name": "Massage Envy Providence", "address": "229 Waterman Street", "category": "Wellness, Beauty & Fitness"}, {"number": 39, "name": "Bleu Marine Spa", "address": "127 Wayland Avenue", "category": "Wellness, Beauty & Fitness"}, {"number": 40, "name": "Citron Spa", "address": "225 Wayland Ave", "category": "Wellness, Beauty & Fitness"}, {"number": 41, "name": "Balencia MedSpa + Wellness", "address": "461 Angell St", "category": "Wellness, Beauty & Fitness"}, {"number": 42, "name": "Dr. Eliza Collins", "address": "189 Governor Street, Suite 2-02", "category": "Wellness, Beauty & Fitness"}, {"number": 43, "name": "M. Hearn Hair Designs", "address": "507 Angell Street", "category": "Wellness, Beauty & Fitness"}, {"number": 44, "name": "Rate / Guaranteed Rate Providence", "address": "469 Angell Street, Suite 1", "category": "Professional & Financial"}, {"number": 45, "name": "Edward Jones - Karen Brunner Lemke", "address": "469 Angell St, Suite 203", "category": "Professional & Financial"}, {"number": 46, "name": "BankNewport Providence Branch", "address": "5 South Angell Street", "category": "Professional & Financial"}, {"number": 47, "name": "Coastal1 Credit Union", "address": "457 Angell St", "category": "Professional & Financial"}, {"number": 48, "name": "Washington Trust East Side Branch", "address": "229 Waterman Street", "category": "Professional & Financial"}, {"number": 49, "name": "Dulgarian Properties", "address": "120 Wayland Ave", "category": "Professional & Financial"}, {"number": 50, "name": "The UPS Store #3114", "address": "11 S Angell St", "category": "Services & Education"}, {"number": 51, "name": "The Laundry Club", "address": "140 Medway St", "category": "Services & Education"}, {"number": 52, "name": "The Wayland", "address": "485 Angell St", "category": "Dining & Cafés"}, {"number": 53, "name": "Angell Nails", "address": "15 S Angell St", "category": "Wellness, Beauty & Fitness"}, {"number": 54, "name": "Semedo's Café", "address": "182 Wayland Ave", "category": "Dining & Cafés"}, {"number": 55, "name": "New Italian Restaurant", "address": "186 Wayland Ave", "category": "Dining & Cafés"}, {"number": 56, "name": "Strands", "address": "489 S Angell St", "category": "Wellness, Beauty & Fitness"}];
+const safeStorage = (() => {
+  const memory = new Map();
+  try {
+    const store = window.localStorage;
+    const testKey = '__wayland_storage_test__';
+    store.setItem(testKey, '1');
+    store.removeItem(testKey);
+    return store;
+  } catch (error) {
+    return {
+      getItem(key) { return memory.has(String(key)) ? memory.get(String(key)) : null; },
+      setItem(key, value) { memory.set(String(key), String(value)); },
+      removeItem(key) { memory.delete(String(key)); },
+      clear() { memory.clear(); }
+    };
+  }
+})();
+const defaultBusinesses = [{"number":1,"name":"L'Artisan Cafe & Bakery","address":"9 Wayland Square","category":"Dining & Cafés"},{"number":2,"name":"McBride's Irish Pub","address":"161 Wayland Ave","category":"Dining & Cafés"},{"number":3,"name":"Madrid European Bakery","address":"199 Wayland Ave","category":"Dining & Cafés"},{"number":4,"name":"Mare Rooftop","address":"229 Waterman St","category":"Dining & Cafés"},{"number":5,"name":"Red Stripe","address":"465 Angell St","category":"Dining & Cafés"},{"number":6,"name":"Pasta Beach Providence","address":"195 Wayland Ave","category":"Dining & Cafés"},{"number":7,"name":"Diego's East Side","address":"192 Wayland Ave","category":"Dining & Cafés"},{"number":8,"name":"Maiz Mexican Restaurant","address":"20 S Angell St","category":"Dining & Cafés"},{"number":9,"name":"Lim's Fine Thai & Sushi Restaurant","address":"18 S Angell St","category":"Dining & Cafés"},{"number":10,"name":"Haruki East","address":"172 Wayland Ave","category":"Dining & Cafés"},{"number":11,"name":"Starbucks Wayland Square","address":"468 Angell St","category":"Dining & Cafés"},{"number":12,"name":"Wayland Fresh","address":"229 Waterman St","category":"Dining & Cafés"},{"number":13,"name":"Estiatorio Fili","address":"225 Waterman St","category":"Dining & Cafés"},{"number":14,"name":"Ocean State Spice & Tea Merchants","address":"225 Wayland Ave","category":"Retail & Specialty"},{"number":15,"name":"East Side Cheese & Provisions","address":"17 S Angell St","category":"Retail & Specialty"},{"number":16,"name":"Reliable Gold Ltd.","address":"9 Wayland Square","category":"Retail & Specialty"},{"number":17,"name":"Opt Eyewear Boutique","address":"141 Wayland Ave","category":"Retail & Specialty"},{"number":18,"name":"Lululemon Wayland Square","address":"195-201 Wayland Ave","category":"Retail & Specialty"},{"number":19,"name":"Green Ink Boutique","address":"199 Wayland Ave","category":"Retail & Specialty"},{"number":20,"name":"Coco Goose","address":"195 Wayland Ave","category":"Retail & Specialty"},{"number":21,"name":"West Elm Wayland Ave","address":"179 Wayland Ave","category":"Retail & Specialty"},{"number":22,"name":"Mrs. Robinson Fine Lingerie","address":"180 Wayland Ave","category":"Retail & Specialty"},{"number":23,"name":"BORA Handcrafted Jewelry","address":"210 Wayland Ave","category":"Retail & Specialty"},{"number":24,"name":"Wendy Brown Home","address":"190 Wayland Ave","category":"Retail & Specialty"},{"number":25,"name":"J.McLaughlin Providence","address":"497 Angell St","category":"Retail & Specialty"},{"number":26,"name":"Books on the Square","address":"471 Angell St","category":"Retail & Specialty"},{"number":27,"name":"Paper Nautilus Books","address":"19 S Angell St","category":"Retail & Specialty"},{"number":28,"name":"Milan Providence Clothiers","address":"178 Wayland Ave","category":"Retail & Specialty"},{"number":29,"name":"Silverline ","address":"467 Angell St","category":"Retail & Specialty"},{"number":30,"name":"Sole Desire x Run Newport PVD","address":"493 Angell St","category":"Retail & Specialty"},{"number":31,"name":"CVS Pharmacy","address":"481 Angell St","category":"Retail & Specialty"},{"number":32,"name":"Barre & Soul Providence","address":"201 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":33,"name":"SkinCeuticals SkinLab Providence","address":"206 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":34,"name":"CORE Studios","address":"229 Waterman St","category":"Wellness, Beauty & Fitness"},{"number":35,"name":"Body Kneads, Inc.","address":"251 Waterman St","category":"Wellness, Beauty & Fitness"},{"number":36,"name":"Wonderland Yoga Studio","address":"129 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":37,"name":"European Wax Center ","address":"200 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":38,"name":"Massage Envy Providence","address":"229 Waterman St","category":"Wellness, Beauty & Fitness"},{"number":39,"name":"Bleu Marine Spa","address":"127 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":40,"name":"Citron Spa","address":"225 Wayland Ave","category":"Wellness, Beauty & Fitness"},{"number":41,"name":"Balencia MedSpa + Wellness","address":"461 Angell St","category":"Wellness, Beauty & Fitness"},{"number":42,"name":"Dr. Eliza Collins - Acupuncture","address":"189 Governor St, Suite 202","category":"Wellness, Beauty & Fitness"},{"number":43,"name":"M. Hearn Hair Designs","address":"507 Angell St","category":"Wellness, Beauty & Fitness"},{"number":44,"name":"Rate / Guaranteed Rate Providence","address":"469 Angell St, Suite 1","category":"Professional & Financial"},{"number":45,"name":"Edward Jones - Karen Brunner Lemke","address":"469 Angell St, Suite 203","category":"Professional & Financial"},{"number":46,"name":"BankNewport Providence Branch","address":"5 S Angell St","category":"Professional & Financial"},{"number":47,"name":"Coastal 1 Credit Union","address":"457 Angell St","category":"Professional & Financial"},{"number":48,"name":"Washington Trust East Side Branch","address":"229 Waterman St","category":"Professional & Financial"},{"number":49,"name":"Dulgarian Properties","address":"120 Wayland Ave","category":"Professional & Financial"},{"number":50,"name":"The UPS Store #3114","address":"11 S Angell St","category":"Services & Education"},{"number":51,"name":"The Laundry Club","address":"140 Medway St","category":"Retail & Specialty"},{"number":52,"name":"The Wayland","address":"485 Angell St","category":"Dining & Cafés"},{"number":53,"name":"Angell Nails","address":"15 S Angell St","category":"Wellness, Beauty & Fitness"},{"number":54,"name":"Semedo's Café","address":"182 Wayland Ave","category":"Dining & Cafés"},{"number":55,"name":"New Italian Restaurant","address":"186 Wayland Ave","category":"Dining & Cafés"},{"number":56,"name":"Strands","address":"489 S Angell St","category":"Wellness, Beauty & Fitness"},{"number":57,"name":"Verizon ","address":"229 Waterman Ave","category":"Retail & Specialty"},{"number":58,"name":"Allura ","address":"13 S Angell St","category":"Wellness, Beauty & Fitness"},{"number":59,"name":"Aurora Nails","address":"229 Waterman St","category":"Wellness, Beauty & Fitness"}];
+const defaultPins = [{"n":"1","label":"L'Artisan Cafe & Bakery","x":1114,"y":643,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1072,"anchorY":609,"leaderWidth":1},{"n":"2","label":"McBride's Irish Pub","x":1048,"y":821,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1023,"anchorY":851,"leaderWidth":1.5},{"n":"3","label":"Madrid European Bakery","x":1102,"y":680,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1059,"anchorY":664,"leaderWidth":1},{"n":"4","label":"Mare Rooftop","x":1007,"y":894,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":false,"anchorX":1046,"anchorY":820,"leaderWidth":1.5},{"n":"5","label":"Red Stripe","x":784,"y":707,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"6","label":"Pasta Beach Providence","x":1100,"y":747,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1037,"anchorY":736,"leaderWidth":1},{"n":"7","label":"Diego's East Side","x":975,"y":759,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"left","border":0.5,"leaderEnabled":false,"anchorX":1014,"anchorY":693,"leaderWidth":1.5},{"n":"8","label":"Maiz Mexican Restaurant","x":1205,"y":663,"size":25,"color":"#c86337","textColor":"#fff","direction":"down","border":1,"leaderEnabled":false,"anchorX":1070,"anchorY":906,"leaderWidth":1.5},{"n":"9","label":"Lim's Fine Thai & Sushi Restaurant","x":1174,"y":657,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":882,"anchorY":869,"leaderWidth":1.5},{"n":"10","label":"Haruki East","x":880,"y":853,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":977,"anchorY":857,"leaderWidth":1},{"n":"11","label":"Starbucks Wayland Square","x":912,"y":633,"size":25,"color":"#c86337","textColor":"#fff","direction":"down","border":1,"leaderEnabled":false,"anchorX":1000,"anchorY":956,"leaderWidth":1.5},{"n":"12","label":"Wayland Fresh","x":1082,"y":882,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1003,"anchorY":826,"leaderWidth":1.5},{"n":"13","label":"Estiatorio Fili","x":940,"y":885,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1054,"anchorY":943,"leaderWidth":1.5},{"n":"14","label":"Ocean State Spice & Tea Merchants","x":1092,"y":570,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1025,"anchorY":809,"leaderWidth":1.5},{"n":"15","label":"East Side Cheese & Provisions","x":1252,"y":720,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"16","label":"Reliable Gold Ltd.","x":1124,"y":618,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1075,"anchorY":597,"leaderWidth":1},{"n":"17","label":"Opt Eyewear Boutique","x":1020,"y":1055,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1054,"anchorY":943,"leaderWidth":1.5},{"n":"18","label":"Lululemon Wayland Square","x":1062,"y":675,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":1062,"anchorY":650,"leaderWidth":1.5},{"n":"19","label":"Green Ink Boutique","x":1070,"y":719,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"20","label":"Coco Goose","x":1119,"y":726,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1042,"anchorY":727,"leaderWidth":1},{"n":"21","label":"West Elm Wayland Ave","x":1062,"y":777,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":0.5,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"22","label":"Mrs. Robinson Fine Lingerie","x":887,"y":801,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":983,"anchorY":830,"leaderWidth":0.5},{"n":"23","label":"BORA Handcrafted Jewelry","x":994,"y":682,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":false,"anchorX":998,"anchorY":662,"leaderWidth":1.5},{"n":"24","label":"Wendy Brown Home","x":938,"y":766,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":998,"anchorY":780,"leaderWidth":1},{"n":"25","label":"J.McLaughlin Providence","x":998,"y":655,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":false,"anchorX":1023,"anchorY":630,"leaderWidth":1.5},{"n":"26","label":"Books on the Square","x":851,"y":689,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1204,"anchorY":980,"leaderWidth":1.5},{"n":"27","label":"Paper Nautilus Books","x":1285,"y":727,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1055,"anchorY":688,"leaderWidth":1.5},{"n":"28","label":"Milan Providence Clothiers","x":880,"y":826,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":979,"anchorY":842,"leaderWidth":1},{"n":"29","label":"Silverline ","x":814,"y":700,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1125,"anchorY":688,"leaderWidth":1.5},{"n":"30","label":"Sole Desire x Run Newport PVD","x":976,"y":654,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"31","label":"CVS Pharmacy","x":882,"y":681,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"32","label":"Barre & Soul Providence","x":1095,"y":705,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":true,"anchorX":1053,"anchorY":678,"leaderWidth":1},{"n":"33","label":"SkinCeuticals SkinLab Providence","x":957,"y":724,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":1008,"anchorY":729,"leaderWidth":1},{"n":"34","label":"CORE Studios","x":1044,"y":916,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1065,"anchorY":671,"leaderWidth":1.5},{"n":"35","label":"Body Kneads, Inc.","x":1148,"y":802,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"36","label":"Wonderland Yoga Studio","x":1025,"y":1110,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":857,"anchorY":708,"leaderWidth":1.5},{"n":"37","label":"European Wax Center ","x":984,"y":713,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":false,"anchorX":991,"anchorY":693,"leaderWidth":1.5},{"n":"38","label":"Massage Envy Providence","x":1039,"y":885,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":913,"anchorY":597,"leaderWidth":1.5},{"n":"39","label":"Bleu Marine Spa","x":1033,"y":1172,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"40","label":"Citron Spa","x":1080,"y":547,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"41","label":"Balencia MedSpa + Wellness","x":754,"y":716,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1038,"anchorY":1112,"leaderWidth":1.5},{"n":"42","label":"Dr. Eliza Collins - Acupuncture","x":579,"y":1199,"size":23,"color":"#8a4f7f","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":491,"anchorY":1317,"leaderWidth":1.5},{"n":"43","label":"M. Hearn Hair Designs","x":1149,"y":623,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":997,"anchorY":786,"leaderWidth":1.5},{"n":"44","label":"Rate / Guaranteed Rate Providence","x":839,"y":722,"size":25,"color":"#4f6fa5","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":true,"anchorX":826,"anchorY":692,"leaderWidth":1},{"n":"45","label":"Edward Jones - Karen Brunner Lemke","x":804,"y":732,"size":25,"color":"#4f6fa5","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":true,"anchorX":778,"anchorY":697,"leaderWidth":1},{"n":"46","label":"BankNewport Providence Branch","x":1132,"y":688,"size":25,"color":"#4f6fa5","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1094,"anchorY":658,"leaderWidth":1.5},{"n":"47","label":"Coastal 1 Credit Union","x":721,"y":726,"size":25,"color":"#4f6fa5","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1035,"anchorY":882,"leaderWidth":1.5},{"n":"48","label":"Washington Trust East Side Branch","x":1079,"y":908,"size":25,"color":"#4f6fa5","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1035,"anchorY":882,"leaderWidth":1.5},{"n":"49","label":"Dulgarian Properties","x":856,"y":874,"size":25,"color":"#ca932b","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":662,"anchorY":1150,"leaderWidth":1.5},{"n":"50","label":"The UPS Store #3114","x":1165,"y":697,"size":25,"color":"#ca932b","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1125,"anchorY":665,"leaderWidth":1.5},{"n":"51","label":"The Laundry Club","x":1132,"y":754,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"down","border":0.5,"leaderEnabled":false,"anchorX":1143,"anchorY":739,"leaderWidth":1.5},{"n":"52","label":"The Wayland","x":913,"y":672,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":1007,"anchorY":705,"leaderWidth":1.5},{"n":"53","label":"Angell Nails","x":1223,"y":712,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":1158,"anchorY":694,"leaderWidth":1.5},{"n":"54","label":"Semedo's Café","x":961,"y":804,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":false,"anchorX":1132,"anchorY":683,"leaderWidth":1.5},{"n":"55","label":"New Italian Restaurant","x":907,"y":779,"size":25,"color":"#c86337","textColor":"#ffffff","direction":"left","border":1,"leaderEnabled":true,"anchorX":993,"anchorY":793,"leaderWidth":1},{"n":"56","label":"Strands","x":943,"y":662,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"57","label":"Verizon ","x":1009,"y":878,"size":25,"color":"#2d7b86","textColor":"#ffffff","direction":"down","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"58","label":"Allura ","x":1194,"y":705,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"right","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5},{"n":"59","label":"Aurora Nails","x":1016,"y":913,"size":25,"color":"#8a4f7f","textColor":"#ffffff","direction":"up","border":1,"leaderEnabled":false,"anchorX":829,"anchorY":724,"leaderWidth":1.5}];
 const categories = ["Dining & Cafés", "Retail & Specialty", "Wellness, Beauty & Fitness", "Professional & Financial", "Services & Education"];
 const categoryRanges = {"Dining & Cafés":"01–55", "Retail & Specialty":"14–31", "Wellness, Beauty & Fitness":"32–56", "Professional & Financial":"44–49", "Services & Education":"50–51"};
-const LATEST_DIRECTORY_ADDITIONS = defaultBusinesses.filter(b => Number(b.number) >= 52 && Number(b.number) <= 56);
+const LATEST_DIRECTORY_ADDITIONS = defaultBusinesses.filter(b => Number(b.number) >= 52 && Number(b.number) <= 59);
 function mergeLatestDirectory(saved) {
   const list = Array.isArray(saved) ? saved.map(b => ({...b})) : structuredClone(defaultBusinesses);
   const byNumber = new Map(list.map(b => [Number(b.number), b]));
-  LATEST_DIRECTORY_ADDITIONS.forEach(b => byNumber.set(Number(b.number), {...b}));
+  LATEST_DIRECTORY_ADDITIONS.forEach(b => { if (!byNumber.has(Number(b.number))) byNumber.set(Number(b.number), {...b}); });
   return Array.from(byNumber.values()).sort((a,b) => Number(a.number) - Number(b.number));
 }
-let businesses = mergeLatestDirectory(JSON.parse(localStorage.getItem('waylandDirectoryV33') || 'null'));
-try { localStorage.setItem('waylandDirectoryV33', JSON.stringify(businesses)); } catch(e) {}
+let businesses = mergeLatestDirectory(JSON.parse(safeStorage.getItem('waylandDirectoryV33') || 'null'));
+try { safeStorage.setItem('waylandDirectoryV33', JSON.stringify(businesses)); } catch(e) {}
 
 
-let brandSettings = {logoData:'data:image/png;base64,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', size:68, position:'bottom-right', show:true};
+let brandSettings = {logoData:'data:image/png;base64,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', size:68, position:'bottom-right', directoryLift:28, show:true};
 const BRAND_STORAGE_KEY = 'waylandBrandV33';
 const DEFAULT_LOGO_DATA = 'data:image/png;base64,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';
 
+const DIRECTORY_SCALE_STORAGE_KEY = 'waylandDirectoryScaleV100';
+let directoryScaleSettings = {auto:true, percent:95};
+let lastResolvedDirectoryPercent = 95;
+
+function clampDirectoryPercent(value) {
+  return Math.max(82, Math.min(105, Math.round(Number(value) || 95)));
+}
+
+function scaledDirectoryValue(base, percent, minimum=0) {
+  return Math.max(minimum, base * (percent / 100));
+}
+
+function applyDirectoryPercentToGrid(grid, percent) {
+  if (!grid) return;
+  const p = clampDirectoryPercent(percent);
+  grid.style.setProperty('--dir-column-gap', `${scaledDirectoryValue(.16,p,.09).toFixed(4)}in`);
+  grid.style.setProperty('--dir-num-column', `${scaledDirectoryValue(.20,p,.16).toFixed(4)}in`);
+  grid.style.setProperty('--dir-biz-gap', `${scaledDirectoryValue(.042,p,.024).toFixed(4)}in`);
+  grid.style.setProperty('--dir-biz-margin', `${scaledDirectoryValue(.024,p,.001).toFixed(4)}in`);
+  grid.style.setProperty('--dir-biz-font', `${scaledDirectoryValue(7.45,p,5.9).toFixed(2)}pt`);
+  grid.style.setProperty('--dir-biz-line', `${Math.max(.98, 1.05 * (p / 100)).toFixed(3)}`);
+  grid.style.setProperty('--dir-addr-font', `${scaledDirectoryValue(6.35,p,4.9).toFixed(2)}pt`);
+  grid.style.setProperty('--dir-addr-margin', `${scaledDirectoryValue(.012,p,0).toFixed(4)}in`);
+  grid.style.setProperty('--dir-addr-line', `${Math.max(1, 1.14 * (p / 100)).toFixed(3)}`);
+  grid.style.setProperty('--dir-num-width', `${scaledDirectoryValue(.18,p,.145).toFixed(4)}in`);
+  grid.style.setProperty('--dir-num-height', `${scaledDirectoryValue(.16,p,.13).toFixed(4)}in`);
+  grid.style.setProperty('--dir-num-font', `${scaledDirectoryValue(6.65,p,5.35).toFixed(2)}pt`);
+  grid.style.setProperty('--dir-num-margin', `${scaledDirectoryValue(.005,p,0).toFixed(4)}in`);
+  grid.style.setProperty('--dir-header-gap', `${scaledDirectoryValue(.045,p,.028).toFixed(4)}in`);
+  grid.style.setProperty('--dir-header-margin', `${scaledDirectoryValue(.026,p,.004).toFixed(4)}in`);
+  grid.style.setProperty('--dir-divider-margin', `${scaledDirectoryValue(.026,p,.004).toFixed(4)}in`);
+  grid.style.setProperty('--dir-column-row-gap', `${scaledDirectoryValue(.06,p,.008).toFixed(4)}in`);
+  grid.style.setProperty('--dir-section-margin', `${scaledDirectoryValue(.01,p,0).toFixed(4)}in`);
+  grid.style.setProperty('--dir-title-font', `${scaledDirectoryValue(9.1,p,7.5).toFixed(2)}pt`);
+  grid.style.setProperty('--dir-range-font', `${scaledDirectoryValue(7.2,p,5.7).toFixed(2)}pt`);
+  grid.style.setProperty('--dir-accent-width', `${scaledDirectoryValue(.045,p,.032).toFixed(4)}in`);
+  grid.style.setProperty('--dir-accent-height', `${scaledDirectoryValue(.16,p,.125).toFixed(4)}in`);
+}
+
+function measureBestDirectoryPercent(directoryHTML) {
+  const probe = document.createElement('div');
+  probe.className = 'postcard';
+  probe.style.position = 'fixed';
+  probe.style.left = '-10000px';
+  probe.style.top = '0';
+  probe.style.visibility = 'hidden';
+  probe.style.pointerEvents = 'none';
+  probe.style.zIndex = '-1';
+  probe.innerHTML = directoryHTML;
+  document.body.appendChild(probe);
+
+  const grid = probe.querySelector('.directoryGrid');
+  const footer = probe.querySelector('.footerBand');
+  const columns = [...probe.querySelectorAll('.dirColumn')];
+  let best = 82;
+
+  for (let percent = 105; percent >= 82; percent--) {
+    applyDirectoryPercentToGrid(grid, percent);
+    const footerTop = footer.getBoundingClientRect().top;
+    const columnBottom = Math.max(...columns.map(col => col.getBoundingClientRect().bottom));
+    if (columnBottom <= footerTop - 3) {
+      best = percent;
+      break;
+    }
+  }
+
+  probe.remove();
+  return best;
+}
+
+function syncDirectoryScaleControls() {
+  const auto = document.getElementById('directoryAutoFit');
+  const slider = document.getElementById('directoryScalePercent');
+  const label = document.getElementById('directoryScaleLabel');
+  const status = document.getElementById('directoryFitStatus');
+  const displayed = directoryScaleSettings.auto
+    ? lastResolvedDirectoryPercent
+    : clampDirectoryPercent(directoryScaleSettings.percent);
+
+  if (auto) auto.checked = directoryScaleSettings.auto !== false;
+  if (slider) slider.value = displayed;
+  if (label) label.textContent = `${displayed}%`;
+  if (status) status.textContent = directoryScaleSettings.auto ? `Auto ${displayed}%` : 'Manual';
+}
+
+function saveDirectoryScaleSettings() {
+  safeStorage.setItem(DIRECTORY_SCALE_STORAGE_KEY, JSON.stringify(directoryScaleSettings));
+}
+
+function updateDirectoryAutoFit() {
+  directoryScaleSettings.auto = document.getElementById('directoryAutoFit')?.checked !== false;
+  if (!directoryScaleSettings.auto) {
+    directoryScaleSettings.percent = clampDirectoryPercent(
+      document.getElementById('directoryScalePercent')?.value || lastResolvedDirectoryPercent
+    );
+  }
+  saveDirectoryScaleSettings();
+  renderPreview();
+  renderPrintPreviews();
+}
+
+function updateDirectoryScalePercent() {
+  const value = clampDirectoryPercent(document.getElementById('directoryScalePercent')?.value);
+  directoryScaleSettings.auto = false;
+  directoryScaleSettings.percent = value;
+  const auto = document.getElementById('directoryAutoFit');
+  if (auto) auto.checked = false;
+  lastResolvedDirectoryPercent = value;
+  saveDirectoryScaleSettings();
+  syncDirectoryScaleControls();
+  renderPreview();
+  renderPrintPreviews();
+}
+
+try {
+  const savedScale = JSON.parse(safeStorage.getItem(DIRECTORY_SCALE_STORAGE_KEY) || 'null');
+  if (savedScale) {
+    directoryScaleSettings = Object.assign({auto:true, percent:95}, savedScale);
+  } else {
+    // One-time migration from the earlier static choices.
+    const oldLayout = JSON.parse(safeStorage.getItem('waylandDirectoryLayoutV98') || 'null');
+    if (oldLayout && oldLayout.mode && oldLayout.mode !== 'auto') {
+      const migration = {standard:100, compact:93, extra:87, ultra:82};
+      directoryScaleSettings = {auto:false, percent:migration[oldLayout.mode] || 95};
+    }
+  }
+} catch(e) {}
+directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent);
+
+
+const DIRECTORY_VIEW_SORT_STORAGE_KEY = 'waylandDirectoryViewSortV99';
+let directoryViewSort = safeStorage.getItem(DIRECTORY_VIEW_SORT_STORAGE_KEY) || 'number';
+
+function addressViewSortParts(address) {
+  const raw = String(address || '').trim();
+  const beforeComma = raw.split(',')[0].trim();
+  const match = beforeComma.match(/^(\d+)(?:\s*-\s*\d+)?\s+(.*)$/);
+  if (!match) return {street: beforeComma.toLocaleLowerCase(), number: Number.MAX_SAFE_INTEGER, full: raw.toLocaleLowerCase()};
+  return {
+    street: String(match[2] || '').toLocaleLowerCase(),
+    number: Number(match[1]) || Number.MAX_SAFE_INTEGER,
+    full: raw.toLocaleLowerCase()
+  };
+}
+
+function directoryViewRows() {
+  const rows = businesses.map((business, actualIndex) => ({business, actualIndex}));
+  const byNumber = (a,b) => Number(a.business.number) - Number(b.business.number);
+  if (directoryViewSort === 'name') {
+    rows.sort((a,b) => String(a.business.name || '').localeCompare(String(b.business.name || ''), undefined, {sensitivity:'base', numeric:true}) || byNumber(a,b));
+  } else if (directoryViewSort === 'address') {
+    rows.sort((a,b) => {
+      const aa = addressViewSortParts(a.business.address);
+      const bb = addressViewSortParts(b.business.address);
+      return aa.street.localeCompare(bb.street, undefined, {sensitivity:'base', numeric:true})
+        || aa.number - bb.number
+        || aa.full.localeCompare(bb.full, undefined, {sensitivity:'base', numeric:true})
+        || byNumber(a,b);
+    });
+  } else {
+    rows.sort(byNumber);
+  }
+  return rows;
+}
+
+function syncDirectoryViewSortControl() {
+  const el = document.getElementById('directoryViewSort');
+  if (el) el.value = directoryViewSort;
+}
+
+function updateDirectoryViewSort() {
+  directoryViewSort = document.getElementById('directoryViewSort')?.value || 'number';
+  safeStorage.setItem(DIRECTORY_VIEW_SORT_STORAGE_KEY, directoryViewSort);
+  renderBusinessTable();
+}
+
 function saveBrandLocal(show=true) {
-  localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(brandSettings));
+  safeStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(brandSettings));
   if (show) alert('Branding saved in this browser.');
 }
 function loadBrandLocal() {
-  const raw = localStorage.getItem(BRAND_STORAGE_KEY);
+  const raw = safeStorage.getItem(BRAND_STORAGE_KEY);
   if (!raw) { alert('No saved branding found in this browser.'); return; }
   try {
     const data = JSON.parse(raw);
-    brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', show:true}, data || {});
+    brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data || {});
     if (!brandSettings.logoData) brandSettings.logoData = DEFAULT_LOGO_DATA;
   syncBrandControls();
     applyBranding(false);
@@ -512,11 +777,15 @@ function syncBrandControls() {
   const sizeEl = document.getElementById('brandSize');
   const posEl = document.getElementById('brandPosition');
   const showEl = document.getElementById('brandShow');
+  const liftEl = document.getElementById('brandDirectoryLift');
   if (sizeEl) sizeEl.value = Number(brandSettings.size || 58);
   if (posEl) posEl.value = brandSettings.position || 'bottom-right';
+  if (liftEl) liftEl.value = Number(brandSettings.directoryLift ?? 28);
   if (showEl) showEl.checked = brandSettings.show !== false;
   const sizeLabel = document.getElementById('brandSizeLabel');
+  const liftLabel = document.getElementById('brandDirectoryLiftLabel');
   if (sizeLabel) sizeLabel.textContent = Number(brandSettings.size || 58);
+  if (liftLabel) liftLabel.textContent = 'not used';
 }
 function brandInnerHTML() {
   const logo = brandSettings.logoData || DEFAULT_LOGO_DATA;
@@ -539,8 +808,7 @@ function renderMapBrandOverlay() {
   }
 }
 function brandPreviewMarkup() {
-  if (brandSettings.show === false) return '';
-  return `<div class="pageBrand ${escapeHTML(brandSettings.position || 'bottom-right')}" style="width:${Number(brandSettings.size || 58)}px;height:${Number(brandSettings.size || 58)}px;">${brandInnerHTML()}</div>`;
+  return '';
 }
 function applyBranding(save=true) {
   renderMapBrandOverlay();
@@ -549,6 +817,7 @@ function applyBranding(save=true) {
 function updateBrandSetting() {
   brandSettings.size = Number(document.getElementById('brandSize')?.value || 58);
   brandSettings.position = document.getElementById('brandPosition')?.value || 'bottom-right';
+  brandSettings.directoryLift = Number(document.getElementById('brandDirectoryLift')?.value ?? 28);
   brandSettings.show = !!document.getElementById('brandShow')?.checked;
   syncBrandControls();
   applyBranding(true);
@@ -589,13 +858,13 @@ function showTab(which) {
 function pad(n) { return String(n).padStart(2,'0'); }
 function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 function businessByNumber(n) { return businesses.find(b => Number(b.number) === Number(n)); }
-function saveDirectoryLocal(show=true) { localStorage.setItem('waylandDirectoryV33', JSON.stringify(businesses)); if (show) alert('Directory saved in this browser.'); syncPinLabels(); }
-function loadDirectoryLocal() { const raw = localStorage.getItem('waylandDirectoryV33'); if (!raw) return alert('No saved directory found in this browser.'); businesses = JSON.parse(raw); renderBusinessTable(); renderPreview(); syncPinLabels(); }
+function saveDirectoryLocal(show=true) { safeStorage.setItem('waylandDirectoryV33', JSON.stringify(businesses)); if (show) alert('Directory saved in this browser.'); syncPinLabels(); }
+function loadDirectoryLocal() { const raw = safeStorage.getItem('waylandDirectoryV33'); if (!raw) return alert('No saved directory found in this browser.'); businesses = JSON.parse(raw); renderBusinessTable(); renderPreview(); syncPinLabels(); }
 function resetDirectory() { if (!confirm('Reset the directory to the uploaded PDF data?')) return; businesses = structuredClone(defaultBusinesses); saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); syncPinLabels(); }
 function renderBusinessTable() {
   const tbody = document.querySelector('#businessTable tbody');
-  businesses.sort((a,b) => Number(a.number)-Number(b.number));
-  tbody.innerHTML = businesses.map((b,i) => `<tr>
+  const rows = directoryViewRows();
+  tbody.innerHTML = rows.map(({business:b, actualIndex:i}) => `<tr>
     <td><input type="number" min="1" max="99" value="${escapeHTML(b.number)}" data-i="${i}" data-field="number" oninput="updateBusiness(this)"></td>
     <td><select data-i="${i}" data-field="category" onchange="updateBusiness(this)">${categories.map(c => `<option value="${escapeHTML(c)}" ${c===b.category?'selected':''}>${escapeHTML(c)}</option>`).join('')}</select></td>
     <td><input value="${escapeHTML(b.name)}" data-i="${i}" data-field="name" oninput="updateBusiness(this)"></td>
@@ -603,6 +872,7 @@ function renderBusinessTable() {
     <td><button class="smallBtn danger" onclick="deleteBusiness(${i})">Delete</button></td>
   </tr>`).join('');
   document.getElementById('businessCount').textContent = `${businesses.length} businesses`;
+  syncDirectoryViewSortControl();
 }
 function updateBusiness(el) {
   const i = Number(el.dataset.i), field = el.dataset.field;
@@ -723,14 +993,27 @@ function renderPreview() {
     rightStarted = true;
   });
 
-  const denseClass = businesses.length > 52 ? ' denseDir' : '';
-  const html = `${brandPreviewMarkup()}<h1>WAYLAND SQUARE</h1><div class="subtitle">Business Directory</div><div class="rule"></div><div class="note">Numbers correspond to the map on the reverse.</div><div class="directoryGrid${denseClass}"><div class="dirColumn">${leftSections.join('')}</div><div class="dirColumn">${rightSections.join('')}</div></div><div class="footerBand">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>`;
-  document.getElementById('postcardPreview').innerHTML = html;
+  const position = brandSettings.position || 'bottom-right';
+  const logoVisibleAtBottom = false;
+  const logoReserve = logoVisibleAtBottom
+    ? Math.max(0, Number(brandSettings.size || 58)) + Math.max(0, Number(brandSettings.directoryLift ?? 28)) + 10
+    : 0;
+  const leftSpacer = logoVisibleAtBottom && position === 'bottom-left' ? `<div class="dirLogoSpacer" style="height:${logoReserve}px"></div>` : '';
+  const rightSpacer = logoVisibleAtBottom && position === 'bottom-right' ? `<div class="dirLogoSpacer" style="height:${logoReserve}px"></div>` : '';
+  const html = `${brandPreviewMarkup()}<h1>WAYLAND SQUARE</h1><div class="subtitle">Business Directory</div><div class="rule"></div><div class="directoryGrid dirFit-percent"><div class="dirColumn">${leftSections.join('')}${leftSpacer}</div><div class="dirColumn">${rightSections.join('')}${rightSpacer}</div></div><div class="footerBand">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>`;
+  const resolvedPercent = directoryScaleSettings.auto
+    ? measureBestDirectoryPercent(html)
+    : clampDirectoryPercent(directoryScaleSettings.percent);
+  lastResolvedDirectoryPercent = resolvedPercent;
+  const preview = document.getElementById('postcardPreview');
+  preview.innerHTML = html;
+  applyDirectoryPercentToGrid(preview.querySelector('.directoryGrid'), resolvedPercent);
+  syncDirectoryScaleControls();
 }
 function exportDirectoryJSON() { document.getElementById('directoryData').value = JSON.stringify(businesses, null, 2); showTab('directory'); }
-function exportFullProject() { document.getElementById('directoryData').value = JSON.stringify({version:'Wayland Square Postcard Project v33', updated:new Date().toISOString(), businesses, pins:getPinData(), brand:brandSettings}, null, 2); showTab('directory'); }
+function exportFullProject() { document.getElementById('directoryData').value = JSON.stringify({version:'Wayland Square Postcard Project v102', updated:new Date().toISOString(), businesses, pins:getPinData(), brand:brandSettings, directoryScale:directoryScaleSettings}, null, 2); showTab('directory'); }
 function importFullProject() {
-  try { const data = JSON.parse(document.getElementById('directoryData').value); businesses = Array.isArray(data) ? data : data.businesses; if (!Array.isArray(businesses)) throw new Error('No businesses array'); if (data.pins) { clearPins(false); data.pins.forEach(addPin); } if (data.brand) { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', show:true}, data.brand); syncBrandControls(); applyBranding(false); } saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); syncPinLabels(); alert('Imported project/directory data.'); }
+  try { const data = JSON.parse(document.getElementById('directoryData').value); businesses = Array.isArray(data) ? data : data.businesses; if (!Array.isArray(businesses)) throw new Error('No businesses array'); if (data.pins) { clearPins(false); data.pins.forEach(addPin); } if (data.brand) { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data.brand); syncBrandControls(); applyBranding(false); } if (data.directoryScale) { directoryScaleSettings = Object.assign({auto:true, percent:95}, data.directoryScale); directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent); saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } else if (data.directoryLayout) { const migration = {standard:100, compact:93, extra:87, ultra:82}; directoryScaleSettings = data.directoryLayout.mode === 'auto' ? {auto:true, percent:95} : {auto:false, percent:migration[data.directoryLayout.mode] || 95}; saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); syncPinLabels(); alert('Imported project/directory data.'); }
   catch(e) { alert('Could not import JSON. Paste either a business array or full project export.'); }
 }
 function downloadDirectoryCSV() {
@@ -916,12 +1199,12 @@ function loadPrintSettings() {
     const scaleEl = document.getElementById('printPinScale');
     const spreadEl = document.getElementById('printPinSpread');
     let saved = null;
-    const raw = localStorage.getItem(PRINT_SETTINGS_STORAGE_KEY);
+    const raw = safeStorage.getItem(PRINT_SETTINGS_STORAGE_KEY);
     if (raw) saved = JSON.parse(raw);
 
     // Compatibility with v86/v87/v88, which only saved the print scale under the old key.
     if (!saved) {
-      const oldScale = localStorage.getItem(PRINT_SPACING_STORAGE_KEY);
+      const oldScale = safeStorage.getItem(PRINT_SPACING_STORAGE_KEY);
       if (oldScale) saved = { scale: oldScale };
     }
 
@@ -949,8 +1232,8 @@ function savePrintSettings(showStatus=false) {
     scaleEl.value = settings.scale;
     spreadEl.value = settings.spread;
 
-    localStorage.setItem(PRINT_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-    localStorage.setItem(PRINT_SPACING_STORAGE_KEY, String(settings.scale));
+    safeStorage.setItem(PRINT_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    safeStorage.setItem(PRINT_SPACING_STORAGE_KEY, String(settings.scale));
     updatePrintSettingsLabels();
     previewPinSettings();
     renderPrintPreviews();
@@ -1114,7 +1397,7 @@ function renderDecorations() {
 
 function saveDecor() {
   try {
-    localStorage.setItem(DECOR_STORAGE_KEY, JSON.stringify({decorSettings, treeStamps}));
+    safeStorage.setItem(DECOR_STORAGE_KEY, JSON.stringify({decorSettings, treeStamps}));
     statusEl.textContent = 'Decor saved in this browser.';
   } catch (e) {
     statusEl.textContent = 'Decor could not be saved automatically. Use Export Decor as a backup.';
@@ -1123,7 +1406,7 @@ function saveDecor() {
 
 function loadDecor() {
   try {
-    let raw = localStorage.getItem(DECOR_STORAGE_KEY);
+    let raw = safeStorage.getItem(DECOR_STORAGE_KEY);
 
     // Backward compatibility: pull decor from recent project versions if this stable key is empty.
     if (!raw) {
@@ -1137,7 +1420,7 @@ function loadDecor() {
         'waylandSquareDecorV44'
       ];
       for (const key of fallbackKeys) {
-        const candidate = localStorage.getItem(key);
+        const candidate = safeStorage.getItem(key);
         if (candidate) { raw = candidate; break; }
       }
     }
@@ -1147,7 +1430,7 @@ function loadDecor() {
     if (data.decorSettings) decorSettings = Object.assign({greenTint:false, trees:true}, data.decorSettings);
     decorSettings.greenTint = false; // keep old green overlay from coming back
     if (Array.isArray(data.treeStamps)) treeStamps = data.treeStamps.filter(t => t.type !== 'bench');
-    localStorage.setItem(DECOR_STORAGE_KEY, JSON.stringify({decorSettings, treeStamps}));
+    safeStorage.setItem(DECOR_STORAGE_KEY, JSON.stringify({decorSettings, treeStamps}));
   } catch(e) {
     statusEl.textContent = 'Saved decor could not be loaded.';
   }
@@ -1451,15 +1734,15 @@ const CATEGORY_PIN_COLORS = {
 };
 function persistPinHistory() {
   try {
-    localStorage.setItem(PIN_UNDO_STORAGE_KEY, JSON.stringify(pinUndoStack));
-    localStorage.setItem(PIN_REDO_STORAGE_KEY, JSON.stringify(pinRedoStack));
+    safeStorage.setItem(PIN_UNDO_STORAGE_KEY, JSON.stringify(pinUndoStack));
+    safeStorage.setItem(PIN_REDO_STORAGE_KEY, JSON.stringify(pinRedoStack));
   } catch(e) {}
   updatePinHistoryButtons();
 }
 function loadPinHistory() {
   try {
-    pinUndoStack = JSON.parse(localStorage.getItem(PIN_UNDO_STORAGE_KEY) || '[]');
-    pinRedoStack = JSON.parse(localStorage.getItem(PIN_REDO_STORAGE_KEY) || '[]');
+    pinUndoStack = JSON.parse(safeStorage.getItem(PIN_UNDO_STORAGE_KEY) || '[]');
+    pinRedoStack = JSON.parse(safeStorage.getItem(PIN_REDO_STORAGE_KEY) || '[]');
     if (!Array.isArray(pinUndoStack)) pinUndoStack = [];
     if (!Array.isArray(pinRedoStack)) pinRedoStack = [];
   } catch(e) {
@@ -1614,8 +1897,8 @@ function exportPins() { document.getElementById('pinData').value=JSON.stringify(
 function importPins() { try { const data=JSON.parse(document.getElementById('pinData').value); capturePinHistory('Import pins'); clearPins(false); data.forEach(addPin); savePinsLocal(false); } catch(e) { alert('Could not import pin JSON.'); } }
 async function copyPins() { await navigator.clipboard.writeText(document.getElementById('pinData').value || JSON.stringify(getPinData(),null,2)); }
 function downloadJSON() { const blob=new Blob([JSON.stringify(getPinData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='wayland_square_pin_positions.json'; a.click(); URL.revokeObjectURL(a.href); }
-function savePinsLocal(show=true) { if(restoringPinHistory) return; localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(getPinData())); if(show) alert('Pins saved in this browser.'); }
-function loadPinsLocal() { const raw=localStorage.getItem(PIN_STORAGE_KEY); if(!raw) return alert('No saved pins found.'); document.getElementById('pinData').value=raw; importPins(); }
+function savePinsLocal(show=true) { if(restoringPinHistory) return; safeStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(getPinData())); if(show) alert('Pins saved in this browser.'); }
+function loadPinsLocal() { const raw=safeStorage.getItem(PIN_STORAGE_KEY); if(!raw) return alert('No saved pins found.'); document.getElementById('pinData').value=raw; importPins(); }
 function clearPins(confirmFirst=true) { if(confirmFirst && !confirm('Clear all pins?')) return; if(confirmFirst) capturePinHistory('Clear all pins'); document.querySelectorAll('.pin').forEach(p=>p.remove()); selected=null; renderLeaderLines(); savePinsLocal(false); }
 function togglePins() { pinsVisible=!pinsVisible; document.querySelectorAll('.pin').forEach(p=>p.style.display=pinsVisible?'flex':'none'); leaderLayer.style.display = pinsVisible ? 'block' : 'none'; leaderAnchorHandle.classList.toggle('hidden', !pinsVisible || !(selected && leaderEnabled(selected))); }
 function togglePinPanel() { document.getElementById('pinPanel').classList.toggle('open'); }
@@ -1801,11 +2084,14 @@ document.addEventListener('keydown', e => {
 window.addEventListener('resize', () => { if(document.getElementById('mapTab').classList.contains('active')) fitMap(); });
 window.addEventListener('load', () => {
   renderBusinessTable();
+  syncDirectoryViewSortControl();
+  syncDirectoryScaleControls();
   syncBrandControls();
-  const savedBrand=localStorage.getItem(BRAND_STORAGE_KEY);
+  const savedBrand=safeStorage.getItem(BRAND_STORAGE_KEY);
   if(savedBrand) {
-    try { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', show:true}, JSON.parse(savedBrand)); } catch(e){}
+    try { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, JSON.parse(savedBrand)); } catch(e){}
   }
+  syncBrandControls();
   applyBranding(false);
 
   // Load saved decor before building previews so nearby box/compass/trees reappear after reopening.
@@ -1815,14 +2101,20 @@ window.addEventListener('load', () => {
   // Reload last-used print scale and print spacing before building previews.
   loadPrintSettings();
 
+  const saved=safeStorage.getItem(PIN_STORAGE_KEY);
+  if(saved) {
+    try { JSON.parse(saved).forEach(addPin); } catch(e) { defaultPins.forEach(addPin); }
+  } else {
+    defaultPins.forEach(addPin);
+    savePinsLocal(false);
+  }
+  syncPinLabels();
+  loadPinHistory();
+  renderLeaderLines();
   renderPreview();
   renderPrintPreviews();
   setTimeout(fitMap, 50);
   setTimeout(fitMap, 250);
-  const saved=localStorage.getItem(PIN_STORAGE_KEY);
-  if(saved) { try { JSON.parse(saved).forEach(addPin); syncPinLabels(); } catch(e){} }
-  loadPinHistory();
-  renderLeaderLines();
 });
 </script>
 </body>
