@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v106 Main Screen Full Export</title>
+<title>Wayland Square Postcard Project Manager — v107 Adjustable Border & PDF Sizes</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -107,8 +107,16 @@
   .previewArea { padding:18px; display:flex; justify-content:center; background:#dfe7ec; min-height:calc(100vh - 116px); }
   .postcard {
     position:relative; width:6in; height:9in; background:var(--paper);
-    border:.035in solid var(--navy); padding:.22in .24in .18in; box-shadow:0 6px 22px rgba(0,0,0,.15);
+    border:none; padding:.22in .24in .18in; box-shadow:0 6px 22px rgba(0,0,0,.15);
     overflow:hidden; color:#162b38;
+  }
+  .postcard::after, .printPage::after {
+    content:'';
+    position:absolute;
+    inset:var(--postcard-border-inset,0pt);
+    border:var(--postcard-border-width,4pt) solid var(--navy);
+    pointer-events:none;
+    z-index:50;
   }
   .postcard h1 {
     margin:0; text-align:center;
@@ -343,8 +351,11 @@
   .printButtons { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
   .printPages { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; padding:18px; background:#dfe7ec; }
   .printPage { position:relative; width:6in; height:9in; background:var(--paper); overflow:hidden; box-shadow:0 6px 22px rgba(0,0,0,.15); }
-  .printDirectoryPage { border:.035in solid var(--navy); padding:.22in .24in .18in; }
-  .printMapPage { border:.035in solid var(--navy); display:flex; align-items:center; justify-content:center; }
+  .printPage.showCutGuide { outline:1px dashed rgba(65,78,86,.78); outline-offset:4pt; }
+  .printLayoutStatus { font-size:12px; font-weight:700; color:#526673; min-width:155px; }
+  .printLayoutGroup input[type="range"] { width:105px; }
+  .printDirectoryPage { border:none; padding:.22in .24in .18in; }
+  .printMapPage { border:none; display:flex; align-items:center; justify-content:center; }
   .printMapFrame { position:relative; width:100%; height:100%; overflow:hidden; background:var(--paper); }
   .printMapBody {
     position:absolute; left:0; right:0; top:1.30in; bottom:.24in;
@@ -420,17 +431,17 @@
     .tabPanel { display:none !important; }
     #printTab { display:block !important; }
     .printPages { display:block; padding:0; background:white; }
-    .printPage { box-shadow:none; margin:0; page-break-after:always; break-after:page; }
+    .printPage { box-shadow:none; margin:var(--pdf-page-margin-y,0in) auto; page-break-after:always; break-after:page; }
     .printPage:last-child { page-break-after:auto; break-after:auto; }
     body[data-print-target="directory"] .printMapPage { display:none !important; }
     body[data-print-target="map"] .printDirectoryPage { display:none !important; }
-    @page { size:6in 9in; margin:0; }
+    @page { size:6in 9in; margin:0; } /* dynamically overridden by the selected PDF page preset */
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v106 Main Screen Full Export</h1>
+  <h1>Wayland Square Postcard Project Manager v107 Adjustable Border & PDF Sizes</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -532,7 +543,7 @@
   <div class="toolbar">
     <button onclick="showTab('directory')">Back to Editor</button>
     <div class="controlGroup directoryPercentGroup"><label for="directoryTitleScalePercentPreview">Title Size</label><input id="directoryTitleScalePercentPreview" type="range" min="85" max="130" step="1" value="100" oninput="updateDirectoryTitleScale('preview')"><span id="directoryTitleScaleLabelPreview" class="pinValueBadge">100%</span></div>
-    <button onclick="window.print()">Print / Save Directory Side as PDF</button>
+    <button onclick="printTarget('directory')">Print / Save Directory Side as PDF</button>
     <button onclick="exportDirectoryJSON()">Export JSON</button>
     <button onclick="downloadDirectoryCSV()">Download CSV</button>
   </div>
@@ -542,6 +553,25 @@
 <section id="printTab" class="tabPanel">
   <div class="toolbar">
     <button onclick="renderPrintPreviews()">Refresh Print Preview</button>
+    <div class="controlGroup printLayoutGroup">
+      <label for="postcardBorderWidth">Border</label>
+      <input id="postcardBorderWidth" type="range" min="2" max="8" step="0.5" value="4" oninput="updatePrintLayoutSettings()">
+      <span id="postcardBorderWidthLabel" class="pinValueBadge">4 pt</span>
+      <label for="postcardBorderInset">Inset</label>
+      <input id="postcardBorderInset" type="range" min="0" max="9" step="1" value="0" oninput="updatePrintLayoutSettings()">
+      <span id="postcardBorderInsetLabel" class="pinValueBadge">0 pt</span>
+    </div>
+    <div class="controlGroup printLayoutGroup">
+      <label for="pdfPageSize">PDF Page</label>
+      <select id="pdfPageSize" onchange="updatePrintLayoutSettings()">
+        <option value="6x9">6 × 9 — final size</option>
+        <option value="6.25x9.25">6.25 × 9.25 — 1/8 in allowance</option>
+        <option value="6.5x9.5">6.5 × 9.5 — 1/4 in allowance</option>
+        <option value="letter">8.5 × 11 Letter — centered</option>
+      </select>
+      <label><input id="showCutGuide" type="checkbox" onchange="updatePrintLayoutSettings()"> Cut guide</label>
+      <span id="printLayoutStatus" class="printLayoutStatus">6 × 9 exact</span>
+    </div>
     <button onclick="printTarget('both')">Print / Save Both Sides PDF</button>
     <button onclick="printTarget('directory')">Print Directory Only</button>
     <button onclick="printTarget('map')">Print Map Only</button>
@@ -549,8 +579,8 @@
   </div>
   <div class="printIntro">
     <h2>Print Production Preview</h2>
-    <p><strong>Best print path:</strong> finish the directory and pins here, click <strong>Refresh Print Preview</strong>, then use <strong>Print / Save Both Sides PDF</strong>. In the print dialog, choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, and turn off browser headers/footers. The SVG download is a design file and will open in Chrome; use Chrome’s Print > Save as PDF if you need a PDF from it.</p>
-    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines. v97 synchronizes the built-in directory with pins 52–56 and automatically adds those missing businesses to an older saved directory without disturbing entries 1–51. v98 embeds the current 59-business project, adds Directory Auto Fit modes, reserves clear space around the bottom logo, and adds a Directory Logo Raise control without moving the map-side logo. v99 removes the directory instruction line to free vertical space and adds view-only editor sorting by map number, business name, or address without changing the printed directory, numbering, or saved business order. v100 replaces the coarse directory-fit choices with exact percentage sizing. Auto Fit now searches in 1% increments for the largest size that fits, and moving the Directory Size slider automatically switches to manual control. v101 restores the editor table and view-only sorting functions that were accidentally omitted in v100. v102 removes the directory-side logo so branding stays on the map side only and no longer overlaps the Services section. v103 restores the view-only Business Name / Address sorting in the directory editor, removes the directory footer band, and replaces the large two-line directory header with a more compact single-line gold title: Wayland Business Directory. v104 adds a Directory Title Size percentage slider so you can make the directory title larger or smaller without affecting the underlying business data or view-only sort tools. v105 adds the same live Title Size slider directly to the directory preview toolbar so you can watch the title change while adjusting it. v106 adds a Download Full Project JSON button directly to the main Map / Pins toolbar. It downloads the same complete project backup without moving you away from the map screen.</p>
+    <p><strong>Best print path:</strong> adjust the border and choose a PDF Page preset above, then click <strong>Print / Save Both Sides PDF</strong>. The postcard artwork stays exactly 6 × 9 inches; larger presets center it on a larger PDF sheet for cutting. In the print dialog, choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, use the page size selected here, and turn off browser headers/footers. The Cut guide is most useful with one of the larger page presets.</p>
+    <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines. v97 synchronizes the built-in directory with pins 52–56 and automatically adds those missing businesses to an older saved directory without disturbing entries 1–51. v98 embeds the current 59-business project, adds Directory Auto Fit modes, reserves clear space around the bottom logo, and adds a Directory Logo Raise control without moving the map-side logo. v99 removes the directory instruction line to free vertical space and adds view-only editor sorting by map number, business name, or address without changing the printed directory, numbering, or saved business order. v100 replaces the coarse directory-fit choices with exact percentage sizing. Auto Fit now searches in 1% increments for the largest size that fits, and moving the Directory Size slider automatically switches to manual control. v101 restores the editor table and view-only sorting functions that were accidentally omitted in v100. v102 removes the directory-side logo so branding stays on the map side only and no longer overlaps the Services section. v103 restores the view-only Business Name / Address sorting in the directory editor, removes the directory footer band, and replaces the large two-line directory header with a more compact single-line gold title: Wayland Business Directory. v104 adds a Directory Title Size percentage slider so you can make the directory title larger or smaller without affecting the underlying business data or view-only sort tools. v105 adds the same live Title Size slider directly to the directory preview toolbar so you can watch the title change while adjusting it. v106 adds a Download Full Project JSON button directly to the main Map / Pins toolbar. It downloads the same complete project backup without moving you away from the map screen. v107 adds live Border Thickness and Border Inset controls on the Print Production screen, plus PDF page-size presets for exact 6x9 output, 1/8-inch trim allowance, 1/4-inch trim allowance, and centered Letter-size cutting sheets. These print-layout settings are saved locally and included in Full Project JSON exports.</p>
   </div>
   <div id="printPages" class="printPages">
     <div id="printDirectoryPage" class="printPage printDirectoryPage postcard"></div>
@@ -597,9 +627,83 @@ const DEFAULT_LOGO_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ4AAAG
 
 const DIRECTORY_SCALE_STORAGE_KEY = 'waylandDirectoryScaleV100';
 const DIRECTORY_TITLE_SCALE_STORAGE_KEY = 'waylandDirectoryTitleScaleV104';
+const PRINT_LAYOUT_STORAGE_KEY = 'waylandPrintLayoutV107';
 let directoryScaleSettings = {auto:true, percent:95};
 let directoryTitleScale = 100;
 let lastResolvedDirectoryPercent = 95;
+let printLayoutSettings = {borderPt:4, insetPt:0, pageSize:'6x9', cutGuide:false};
+const PDF_PAGE_PRESETS = {
+  '6x9': {width:6, height:9, marginY:0, label:'6 × 9 exact'},
+  '6.25x9.25': {width:6.25, height:9.25, marginY:.125, label:'1/8 in allowance'},
+  '6.5x9.5': {width:6.5, height:9.5, marginY:.25, label:'1/4 in allowance'},
+  'letter': {width:8.5, height:11, marginY:1, label:'Letter, centered'}
+};
+
+function clampPrintLayoutNumber(value, min, max, fallback, step=1) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const snapped = Math.round(n / step) * step;
+  return Math.max(min, Math.min(max, snapped));
+}
+
+function savePrintLayoutSettings() {
+  safeStorage.setItem(PRINT_LAYOUT_STORAGE_KEY, JSON.stringify(printLayoutSettings));
+}
+
+function applyPrintLayoutSettings() {
+  const borderPt = clampPrintLayoutNumber(printLayoutSettings.borderPt, 2, 8, 4, .5);
+  const insetPt = clampPrintLayoutNumber(printLayoutSettings.insetPt, 0, 9, 0, 1);
+  const presetKey = PDF_PAGE_PRESETS[printLayoutSettings.pageSize] ? printLayoutSettings.pageSize : '6x9';
+  const preset = PDF_PAGE_PRESETS[presetKey];
+  printLayoutSettings = {borderPt, insetPt, pageSize:presetKey, cutGuide:!!printLayoutSettings.cutGuide};
+
+  document.documentElement.style.setProperty('--postcard-border-width', `${borderPt}pt`);
+  document.documentElement.style.setProperty('--postcard-border-inset', `${insetPt}pt`);
+  document.documentElement.style.setProperty('--pdf-page-margin-y', `${preset.marginY}in`);
+
+  let dynamicStyle = document.getElementById('dynamicPrintPageStyle');
+  if (!dynamicStyle) {
+    dynamicStyle = document.createElement('style');
+    dynamicStyle.id = 'dynamicPrintPageStyle';
+    document.head.appendChild(dynamicStyle);
+  }
+  dynamicStyle.textContent = `@media print { @page { size:${preset.width}in ${preset.height}in; margin:0; } }`;
+
+  document.querySelectorAll('.printPage').forEach(page => page.classList.toggle('showCutGuide', printLayoutSettings.cutGuide));
+
+  const border = document.getElementById('postcardBorderWidth');
+  const inset = document.getElementById('postcardBorderInset');
+  const pageSize = document.getElementById('pdfPageSize');
+  const cut = document.getElementById('showCutGuide');
+  const borderLabel = document.getElementById('postcardBorderWidthLabel');
+  const insetLabel = document.getElementById('postcardBorderInsetLabel');
+  const status = document.getElementById('printLayoutStatus');
+  if (border) border.value = borderPt;
+  if (inset) inset.value = insetPt;
+  if (pageSize) pageSize.value = presetKey;
+  if (cut) cut.checked = !!printLayoutSettings.cutGuide;
+  if (borderLabel) borderLabel.textContent = `${borderPt} pt`;
+  if (insetLabel) insetLabel.textContent = `${insetPt} pt`;
+  if (status) status.textContent = preset.label;
+}
+
+function updatePrintLayoutSettings() {
+  printLayoutSettings.borderPt = clampPrintLayoutNumber(document.getElementById('postcardBorderWidth')?.value, 2, 8, 4, .5);
+  printLayoutSettings.insetPt = clampPrintLayoutNumber(document.getElementById('postcardBorderInset')?.value, 0, 9, 0, 1);
+  printLayoutSettings.pageSize = document.getElementById('pdfPageSize')?.value || '6x9';
+  printLayoutSettings.cutGuide = !!document.getElementById('showCutGuide')?.checked;
+  savePrintLayoutSettings();
+  applyPrintLayoutSettings();
+  renderPrintPreviews();
+}
+
+function loadPrintLayoutSettings() {
+  try {
+    const saved = JSON.parse(safeStorage.getItem(PRINT_LAYOUT_STORAGE_KEY) || 'null');
+    if (saved && typeof saved === 'object') printLayoutSettings = Object.assign(printLayoutSettings, saved);
+  } catch(e) {}
+  applyPrintLayoutSettings();
+}
 
 function clampDirectoryPercent(value) {
   return Math.max(82, Math.min(105, Math.round(Number(value) || 95)));
@@ -1077,19 +1181,20 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Wayland Square Postcard Project v106',
+    version:'Wayland Square Postcard Project v107',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
     brand:brandSettings,
     directoryScale:directoryScaleSettings,
-    directoryTitleScale
+    directoryTitleScale,
+    printLayout:printLayoutSettings
   };
 }
 function exportDirectoryJSON() { document.getElementById('directoryData').value = JSON.stringify(businesses, null, 2); showTab('directory'); }
 function exportFullProject() { document.getElementById('directoryData').value = JSON.stringify(buildFullProjectExport(), null, 2); showTab('directory'); }
 function importFullProject() {
-  try { const data = JSON.parse(document.getElementById('directoryData').value); businesses = Array.isArray(data) ? data : data.businesses; if (!Array.isArray(businesses)) throw new Error('No businesses array'); if (data.pins) { clearPins(false); data.pins.forEach(addPin); } if (data.brand) { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data.brand); syncBrandControls(); applyBranding(false); } if (data.directoryScale) { directoryScaleSettings = Object.assign({auto:true, percent:95}, data.directoryScale); directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent); saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } else if (data.directoryLayout) { const migration = {standard:100, compact:93, extra:87, ultra:82}; directoryScaleSettings = data.directoryLayout.mode === 'auto' ? {auto:true, percent:95} : {auto:false, percent:migration[data.directoryLayout.mode] || 95}; saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } if (data.directoryTitleScale != null) { directoryTitleScale = Math.max(85, Math.min(130, Math.round(Number(data.directoryTitleScale) || 100))); saveDirectoryTitleScale(); syncDirectoryTitleScaleControls(); } saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); syncPinLabels(); alert('Imported project/directory data.'); }
+  try { const data = JSON.parse(document.getElementById('directoryData').value); businesses = Array.isArray(data) ? data : data.businesses; if (!Array.isArray(businesses)) throw new Error('No businesses array'); if (data.pins) { clearPins(false); data.pins.forEach(addPin); } if (data.brand) { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data.brand); syncBrandControls(); applyBranding(false); } if (data.directoryScale) { directoryScaleSettings = Object.assign({auto:true, percent:95}, data.directoryScale); directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent); saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } else if (data.directoryLayout) { const migration = {standard:100, compact:93, extra:87, ultra:82}; directoryScaleSettings = data.directoryLayout.mode === 'auto' ? {auto:true, percent:95} : {auto:false, percent:migration[data.directoryLayout.mode] || 95}; saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } if (data.directoryTitleScale != null) { directoryTitleScale = Math.max(85, Math.min(130, Math.round(Number(data.directoryTitleScale) || 100))); saveDirectoryTitleScale(); syncDirectoryTitleScaleControls(); } if (data.printLayout) { printLayoutSettings = Object.assign(printLayoutSettings, data.printLayout); savePrintLayoutSettings(); applyPrintLayoutSettings(); } saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); renderPrintPreviews(); syncPinLabels(); alert('Imported project/directory data.'); }
   catch(e) { alert('Could not import JSON. Paste either a business array or full project export.'); }
 }
 function downloadDirectoryCSV() {
@@ -1251,6 +1356,7 @@ function renderPrintPreviews() {
   mapPage.innerHTML = `<div class="printMapFrame">${mapTitleHTML('printMapVectorTitle')}<div class="printMapBody"><div class="printMapArt">${vectorMapCrop}${bottomMapFill}${decorPrintMarkup(PRINT_CROP_X, PRINT_CROP_Y, PRINT_CROP_W, PRINT_CROP_H)}<div class="printLeaderLayer"><svg viewBox="0 0 ${PRINT_CROP_W} ${PRINT_CROP_H}" preserveAspectRatio="none">${leaderMarkup}</svg></div><div class="printPinLayer">${pinMarkup}</div></div></div><div class="footerBand printMapFooter">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>${printBrandMarkup()}</div>`;
 }
 function printTarget(target) {
+  applyPrintLayoutSettings();
   renderPrintPreviews();
   document.body.dataset.printTarget = target || 'both';
   window.print();
@@ -2174,8 +2280,9 @@ window.addEventListener('load', () => {
   loadDecor();
   renderDecorations();
 
-  // Reload last-used print scale and print spacing before building previews.
+  // Reload last-used print scale, print spacing, border, and PDF page-size settings before building previews.
   loadPrintSettings();
+  loadPrintLayoutSettings();
 
   const saved=safeStorage.getItem(PIN_STORAGE_KEY);
   if(saved) {
