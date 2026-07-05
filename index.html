@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v129 QR Color Styles</title>
+<title>Wayland Square Postcard Project Manager — v130 QR Label Scaling</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -299,7 +299,24 @@
   }
   .qrOverlay.dragging, .qrOverlay.selected { outline:2px dashed #ff9d2e; outline-offset:3px; cursor:grabbing; }
   .qrOverlay img { display:block; width:100%; height:auto; image-rendering:pixelated; }
-  .qrOverlay .qrLabel { margin-top:4px; padding:3px 6px; display:inline-block; border-radius:999px; font:700 10px Arial,Helvetica,sans-serif; color:var(--qr-label-color,#062f45); background:var(--qr-label-bg, transparent); line-height:1; white-space:nowrap; }
+  .qrOverlay .qrLabel {
+    margin-top:calc(var(--qr-size,72px) * .045);
+    padding:calc(var(--qr-size,72px) * .030) calc(var(--qr-size,72px) * .025);
+    display:block;
+    width:100%;
+    max-width:100%;
+    border-radius:999px;
+    font-family:Arial,Helvetica,sans-serif;
+    font-weight:700;
+    font-size:clamp(5px, calc(var(--qr-size,72px) * .105), 10px);
+    color:var(--qr-label-color,#062f45);
+    background:var(--qr-label-bg, transparent);
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:clip;
+    text-align:center;
+  }
   .printQrLayer { position:absolute; inset:0; pointer-events:none; z-index:8; }
   .printQrCode {
     position:absolute; background:var(--qr-card-bg, rgba(255,255,255,.95)); border:1px solid var(--qr-card-border, rgba(6,47,69,.14));
@@ -307,7 +324,23 @@
     border-radius:6px; padding:4px 4px 3px; text-align:center; box-shadow:none;
   }
   .printQrCode img { display:block; width:100%; height:auto; image-rendering:pixelated; }
-  .printQrCode .qrLabel { margin-top:2px; padding:2px 5px; display:inline-block; border-radius:999px; font:700 7.3pt Arial,Helvetica,sans-serif; color:var(--qr-label-color,#062f45); background:var(--qr-label-bg, transparent); line-height:1; white-space:nowrap; }
+  .printQrCode .qrLabel {
+    margin-top:.025in;
+    padding:.018in .012in;
+    display:block;
+    width:100%;
+    max-width:100%;
+    border-radius:999px;
+    font-family:Arial,Helvetica,sans-serif;
+    font-weight:700;
+    font-size:var(--qr-print-label-size,7pt);
+    color:var(--qr-label-color,#062f45);
+    background:var(--qr-label-bg, transparent);
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-align:center;
+  }
   .mapVectorTitle {
     position:absolute; left:0; top:0; width:1658px; height:184px;
     background:#fbf8ef; z-index:4; pointer-events:none;
@@ -590,7 +623,7 @@
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v128 Draggable QR Codes</h1>
+  <h1>Wayland Square Postcard Project Manager v130 QR Label Scaling</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -1205,6 +1238,7 @@ function resetQrCodes() {
   renderPrintPreviews();
   statusEl.textContent = 'QR code layout reset.';
 }
+/* v130: QR labels now scale with QR Size so the label follows the resized code. QR positions/theme storage key is intentionally unchanged so v129 saved layout carries forward. */
 function getQrThemeStyles(item) {
   const theme = qrSettings.theme || 'social';
   const themes = {
@@ -1295,7 +1329,8 @@ function printQrMarkup() {
   const items = qrSettings.items.map(item => {
     const leftIn = ((Number(item.x) - PRINT_CROP_X) / PRINT_CROP_W) * PRINT_BODY_WIDTH_IN;
     const topIn = PRINT_BODY_TOP_IN + ((Number(item.y) - PRINT_CROP_Y) / PRINT_CROP_H) * PRINT_BODY_HEIGHT_IN;
-    return `<div class="printQrCode" style="left:${leftIn.toFixed(4)}in;top:${topIn.toFixed(4)}in;width:${sizeIn.toFixed(4)}in;${qrThemeStyleVars(item)}"><img src="${item.qrData}" alt="${escapeHTML(item.label)} QR"><div class="qrLabel">${escapeHTML(item.label)}</div></div>`;
+    const labelSizePt = Math.max(4.8, Math.min(7.3, sizeIn * 9.2));
+    return `<div class="printQrCode" style="left:${leftIn.toFixed(4)}in;top:${topIn.toFixed(4)}in;width:${sizeIn.toFixed(4)}in;--qr-print-label-size:${labelSizePt.toFixed(2)}pt;${qrThemeStyleVars(item)}"><img src="${item.qrData}" alt="${escapeHTML(item.label)} QR"><div class="qrLabel">${escapeHTML(item.label)}</div></div>`;
   }).join('');
   return `<div class="printQrLayer">${items}</div>`;
 }
