@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v128 Draggable QR Codes</title>
+<title>Wayland Square Postcard Project Manager — v129 QR Color Styles</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -292,20 +292,22 @@
   .qrOverlay {
     position:absolute; width:var(--qr-size,72px); transform:translate(0,0);
     pointer-events:auto; cursor:grab; touch-action:none; user-select:none;
-    background:rgba(255,255,255,.94); border:1px solid rgba(6,47,69,.18);
+    background:var(--qr-card-bg, rgba(255,255,255,.94)); border:1px solid var(--qr-card-border, rgba(6,47,69,.18));
+    border-top:4px solid var(--qr-accent, rgba(6,47,69,.18));
     border-radius:8px; padding:6px 5px 4px; text-align:center;
     box-shadow:0 1px 4px rgba(0,0,0,.10);
   }
   .qrOverlay.dragging, .qrOverlay.selected { outline:2px dashed #ff9d2e; outline-offset:3px; cursor:grabbing; }
   .qrOverlay img { display:block; width:100%; height:auto; image-rendering:pixelated; }
-  .qrOverlay .qrLabel { margin-top:3px; font:700 10px Arial,Helvetica,sans-serif; color:#062f45; line-height:1; white-space:nowrap; }
+  .qrOverlay .qrLabel { margin-top:4px; padding:3px 6px; display:inline-block; border-radius:999px; font:700 10px Arial,Helvetica,sans-serif; color:var(--qr-label-color,#062f45); background:var(--qr-label-bg, transparent); line-height:1; white-space:nowrap; }
   .printQrLayer { position:absolute; inset:0; pointer-events:none; z-index:8; }
   .printQrCode {
-    position:absolute; background:rgba(255,255,255,.95); border:1px solid rgba(6,47,69,.14);
+    position:absolute; background:var(--qr-card-bg, rgba(255,255,255,.95)); border:1px solid var(--qr-card-border, rgba(6,47,69,.14));
+    border-top:3px solid var(--qr-accent, rgba(6,47,69,.14));
     border-radius:6px; padding:4px 4px 3px; text-align:center; box-shadow:none;
   }
   .printQrCode img { display:block; width:100%; height:auto; image-rendering:pixelated; }
-  .printQrCode .qrLabel { margin-top:2px; font:700 7.3pt Arial,Helvetica,sans-serif; color:#062f45; line-height:1; white-space:nowrap; }
+  .printQrCode .qrLabel { margin-top:2px; padding:2px 5px; display:inline-block; border-radius:999px; font:700 7.3pt Arial,Helvetica,sans-serif; color:var(--qr-label-color,#062f45); background:var(--qr-label-bg, transparent); line-height:1; white-space:nowrap; }
   .mapVectorTitle {
     position:absolute; left:0; top:0; width:1658px; height:184px;
     background:#fbf8ef; z-index:4; pointer-events:none;
@@ -638,6 +640,13 @@
         <label for="qrSize">QR Size</label>
         <input id="qrSize" type="range" min="48" max="120" value="72" oninput="updateQrControls()">
         <span id="qrSizeLabel" class="pinValueBadge">72</span>
+        <label for="qrTheme">QR Style</label>
+        <select id="qrTheme" onchange="updateQrControls()">
+          <option value="white">Classic White</option>
+          <option value="gold">Warm Gold</option>
+          <option value="navy">Navy Accent</option>
+          <option value="social" selected>Social Colors</option>
+        </select>
         <button class="btnTiny" onclick="resetQrCodes()">Reset QR Layout</button>
       </div>
       <button onclick="togglePins()">Show/Hide Pins</button><button onclick="exportPins()">Export Pins</button><button onclick="downloadProjectJSON()">Download Full Project JSON</button><button onclick="downloadNativePNG()">Quick PNG</button><button onclick="downloadOverlayPNG()">Pin Overlay PNG</button><button onclick="downloadSVG()">Download Map SVG</button><button onclick="printTarget('map')">Print / Save Map PDF</button><button onclick="togglePinPanel()">Import/Export</button>
@@ -1122,10 +1131,11 @@ function updateDirectoryViewSort() {
 }
 
 
-const QR_STORAGE_KEY = 'waylandSquareQrCodesV128';
+const QR_STORAGE_KEY = 'waylandSquareQrCodesV129';
 const DEFAULT_QR_SETTINGS = {
   show:true,
   size:72,
+  theme:'social',
   items:[{"id":"facebook","label":"Facebook","url":"https://www.facebook.com/WaylandSquare/","qrData":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoCAIAAABkZftOAAAFfklEQVR4nO3dQa4jKRBAwfGo73/lnhOwQCLngR2xbrnK7v/EIgV8/v79+w/w//q3fgH4RcKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CDwZ/oBn89n+hFH7N4TuPpeq8/Z/ffTz5122/vsmr430ooHAeFBQHgQEB4EhAcB4UFAeBAYn+OtTM9JVk7Nkabfv5rXnZorTj/3lGquaMWDgPAgIDwICA8CwoOA8CAgPAhkc7yV2+ZC1b67U+9f/Q6n3Pb3cIoVDwLCg4DwICA8CAgPAsKDgPAgcN0c7xXTc63pfWK773/bHOx1VjwICA8CwoOA8CAgPAgIDwLCg4A53mG787fpudnu+3zr/rfbWPEgIDwICA8CwoOA8CAgPAgIDwLXzfFen/84Z/KsV95zlxUPAsKDgPAgIDwICA8CwoOA8CCQzfGmz42cdup+vOn79E7tx5t+/9f/HnZZ8SAgPAgIDwLCg4DwICA8CAgPAuNzvG/dT7Wruu9u16l54O7n/xorHgSEBwHhQUB4EBAeBIQHAeFB4FOdAzk9L9p123zpW3+3V95zmhUPAsKDgPAgIDwICA8CwoOA8CDwzLmap+ZF1Rxseo5023zvld/z1Lmgu6x4EBAeBIQHAeFBQHgQEB4EhAeB8f14p9w2F5qe/7yyb62ag73OigcB4UFAeBAQHgSEBwHhQUB4EBjfjze97253H9qp+dKp507vG6z2rVX39VV/D7useBAQHgSEBwHhQUB4EBAeBIQHgexczel5y/Qc7Lb9cqv3qeZX1XzstnndihUPAsKDgPAgIDwICA8CwoOA8CDwzP14t833Tjk1z6y+12377na5Hw9+iPAgIDwICA8CwoOA8CAgPAiM349X7X+rzns85ba54sr0/8tt54ueYsWDgPAgIDwICA8CwoOA8CAgPAiMz/GWD75sDnPbnHD3udOm/7+qz3c/HvwQ4UFAeBAQHgSEBwHhQUB4EBg/V/O2+Um17+tb54TVPXu3zYF3WfEgIDwICA8CwoOA8CAgPAgIDwLZ/XinnLpHbuW2+c9tc8Lq/r3p93c/Hnwh4UFAeBAQHgSEBwHhQUB4ELhujlfNhVamz4ecdmoeVc0Pq/1+06x4EBAeBIQHAeFBQHgQEB4EhAeB8fvxpucz33ruZfX5K6/8Piu3ne9qxYOA8CAgPAgIDwLCg4DwICA8CDyzH2/3nMzV59x2r9qpcz5PnT9ZzVdPca4msCQ8CAgPAsKDgPAgIDwICA8C4/vxXjd9P9srn7PyrfNAczz4QsKDgPAgIDwICA8CwoOA8CAwvh/vtvviVk7t95s+T3Ll1Dztlffcddu82ooHAeFBQHgQEB4EhAcB4UFAeBDIztWs5iqnzl085bb9crfdazf9Oc7VhB8iPAgIDwLCg4DwICA8CAgPAs/cj7frlTnhyql9gNXn3HY/3u73mmbFg4DwICA8CAgPAsKDgPAgIDwIXDfHe91t+9lO7T/cfe70vsHpfZX248EXEh4EhAcB4UFAeBAQHgSEBwFzvEtNz7Wmz7c8Nbec3tdnPx78EOFBQHgQEB4EhAcB4UFAeBC4bo5XzVVWXt9fV+2Lu+251TmfK1Y8CAgPAsKDgPAgIDwICA8CwoNANse7ba6ycttc65Tqe+2qzgWdZsWDgPAgIDwICA8CwoOA8CAgPAh8bptvwC+w4kFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBP4DQQEzXKxXgpwAAAAASUVORK5CYII=","x":690,"y":1280},{"id":"instagram","label":"Instagram","url":"https://www.instagram.com/waylandsquareri/","qrData":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoCAIAAABkZftOAAAFe0lEQVR4nO3dUa5rJxZAwXYr85/yywhIhMTOArvq27LPvfYSH1vA58+fP/8D/lv/rx8AfpHwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwICA8CwoOA8CAgPAgIDwLCg4DwICA8CAgPAsKDgPAgIDwI/DX9AZ/PZ/ojjljdE7j7/Lv3Da7e/9S9hbvvf+r7mn7/adP3RlrxICA8CAgPAsKDgPAgIDwICA8C43O8lek5ycrrc6rpud+pOeT0555SzRWteBAQHgSEBwHhQUB4EBAeBIQHgWyOt3LbXOj1fWu37Q/cddvv4RQrHgSEBwHhQUB4EBAeBIQHAeFB4Lo53m1eOQeymiveNh97hRUPAsKDgPAgIDwICA8CwoOA8CBgjvcvpu/NOzUfm77Hb/dzzff+mRUPAsKDgPAgIDwICA8CwoOA8CBw3RzvlflPdT/eSnWv3bRXfg+7rHgQEB4EhAcB4UFAeBAQHgSEB4FsjvfKHOm2/Wa7z1O9ftcrv4dTrHgQEB4EhAcB4UFAeBAQHgSEB4HxOd637qe6bb63Mj1/2/17b/v/VKx4EBAeBIQHAeFBQHgQEB4EhAeB8Tne9P6uak71a/vHTpm+D3D6d3WKFQ8CwoOA8CAgPAgIDwLCg4DwIJDtx7ttDjM9l6v2v71y7uX093vbPNaKBwHhQUB4EBAeBIQHAeFBQHgQeH4/3q7d93/lfrlpp/an3fb9Vud8WvEgIDwICA8CwoOA8CAgPAgIDwKf6TnG9NzmW+9bq/5vt51ruvu5u6p7Dq14EBAeBIQHAeFBQHgQEB4EhAeB8TnerlfmSCvfuk/vW38nFSseBIQHAeFBQHgQEB4EhAcB4UHgmf141XNW+9am78E79f6vPOcu+/HgCwkPAsKDgPAgIDwICA8CwoPA+P14K9X8Z3rO88o+wOqeulPPedv+ul1WPAgIDwLCg4DwICA8CAgPAsKDQDbHOzWfOfX63bnWqddP3/O2Uu1zu+3ev2oeaMWDgPAgIDwICA8CwoOA8CAgPAg8c67mrlfmOSvVc06fn3nbPkxzPPghwoOA8CAgPAgIDwLCg4DwIDC+H++VuU01v7ptbrZrep/ebeeFnmLFg4DwICA8CAgPAsKDgPAgIDwIjM/xqvMzV26b81T7wW7bn7brlX13K1Y8CAgPAsKDgPAgIDwICA8CwoPAdfvxTt1fd9vcpjJ979+p/XK/9n1Z8SAgPAgIDwLCg4DwICA8CAgPAuNzvJXpec6pfXen5oorr8+1pv8P38qKBwHhQUB4EBAeBIQHAeFBQHgQ+LwyL6qcurftlNvu63tlHrtrugsrHgSEBwHhQUB4EBAeBIQHAeFBILsf7zan5jbT87FTqueZnvu9cm+eFQ8CwoOA8CAgPAgIDwLCg4DwIJCdq1nNT26bK566v276HsLX7y28bd+pFQ8CwoOA8CAgPAgIDwLCg4DwIJDN8Vam77Wbfp/qXMpfOw9zet+gczXhCwkPAsKDgPAgIDwICA8CwoPAdXO82/za/r1X7vebnn9Os+JBQHgQEB4EhAcB4UFAeBAQHgTM8Q6b3s82Paeqztus9iVWrHgQEB4EhAcB4UFAeBAQHgSEB4Hr5ni3zVuq8xtPzcFOqc7nXLntHNFdVjwICA8CwoOA8CAgPAgIDwLCg0A2x7vtvMqV286l3PXKOZO3zW+nWfEgIDwICA8CwoOA8CAgPAgIDwKfX5ufwA2seBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHgb8BjYD3lYPzFb4AAAAASUVORK5CYII=","x":800,"y":1280},{"id":"digital","label":"Digital Map","url":"https://waylandsquareri.com/","qrData":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoCAIAAABkZftOAAAFfklEQVR4nO3dwW4kKRAA0e3V/P8vew57RiNGyQbY752t6nLbIQ4p4PP19fUP8P/6t34B+ImEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFB4NfpD/h8Pqc/YsTpewJX38Pqc3d/fvdzp9z2PlNO/z9Y8SAgPAgIDwLCg4DwICA8CAgPAsfneCun5yQru3Ok3Z9f/V5T87pqLnfbPHBKNVe04kFAeBAQHgSEBwHhQUB4EBAeBLI53srUXGVqLjS132xqvrdyel/fSvX8XdWccMWKBwHhQUB4EBAeBIQHAeFBQHgQuG6O94rqnMyp96FlxYOA8CAgPAgIDwLCg4DwICA8CJjj/cHUOZy787RX7s0zJ/w7VjwICA8CwoOA8CAgPAgIDwLCg8B1c7zb5kKn77Wr9u9NnedZvefrrHgQEB4EhAcB4UFAeBAQHgSEB4Fsjje1H+y02+Z11Txwau638sr/wxQrHgSEBwHhQUB4EBAeBIQHAeFB4PNd9ztVdudRU/OxV57Df6x4EBAeBIQHAeFBQHgQEB4EhAeB43O82/abnT4HcqW61666Z2/q+3zlPXdZ8SAgPAgIDwLCg4DwICA8CAgPAtedq/nT5nvf1dS8cervddvf3YoHAeFBQHgQEB4EhAcB4UFAeBDI5nhT97Pt/nx1n9sr+8duu09vah57GyseBIQHAeFBQHgQEB4EhAcB4UEgux+vmrecnv/c9n2+ft+dczWBMcKDgPAgIDwICA8CwoOA8CDwzBzvlfnb6+/zyue+Pre04kFAeBAQHgSEBwHhQUB4EBAeBI6fq3l6393pe89um4PdNqd65RzL287htOJBQHgQEB4EhAcB4UFAeBAQHgSO78e7bY439fxd1Vxx1ytzyJXb5pwrVjwICA8CwoOA8CAgPAgIDwLCg8Dx/Xi33WN22/vsfu7K1PyqOg+z4n48+EGEBwHhQUB4EBAeBIQHAeFB4Lr9eKf3U33X8zZ3P/f1/YGvnDu6YsWDgPAgIDwICA8CwoOA8CAgPAhctx/v9POn5kLVPq4pt73/6+d57rLiQUB4EBAeBIQHAeFBQHgQEB4Ejs/xpuYq1b6sXa/cXzfFeZ5/x4oHAeFBQHgQEB4EhAcB4UFAeBDI9uNV87Td96nmP6fv8bvt9zo9v919n9OseBAQHgSEBwHhQUB4EBAeBIQHgex+vFf2U1XnPU6Z+t5emQe+wooHAeFBQHgQEB4EhAcB4UFAeBA4Psd73W3nPU7N016ZT1b7DE93YcWDgPAgIDwICA8CwoOA8CAgPAhk9+PdZjW3qeZyU8/ffc7p+djp/Zm37RtcseJBQHgQEB4EhAcB4UFAeBAQHgSOz/FWqn2At82jdp+/MjW/Oj0fu23/p/vx4AcRHgSEBwHhQUB4EBAeBIQHgWyOt3LbuYhTc63d99l9/m33EJ7e/3bbPHCXFQ8CwoOA8CAgPAgIDwLCg4DwIHDdHO82t80DT5uaN+56ZZ/kFCseBIQHAeFBQHgQEB4EhAcB4UHAHO8Pqv11u8/ZVe3fe+X9T8/9rHgQEB4EhAcB4UFAeBAQHgSEB4Hr5ni37Zs6Pa+bOj9z931e+Z5fn9etWPEgIDwICA8CwoOA8CAgPAgIDwLZHK86N3LXK3Ozag42Zff5r8/3rHgQEB4EhAcB4UFAeBAQHgSEB4HPbfuy4Cew4kFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBH4DqeZdUBy6sZAAAAAASUVORK5CYII=","x":910,"y":1280}]
 };
 let qrSettings = JSON.parse(JSON.stringify(DEFAULT_QR_SETTINGS));
@@ -1140,6 +1150,7 @@ function normalizeQrSettings(data) {
   const incoming = data || {};
   base.show = incoming.show !== false;
   base.size = Math.max(48, Math.min(120, Math.round(Number(incoming.size || base.size))));
+  base.theme = ['white','gold','navy','social'].includes(incoming.theme) ? incoming.theme : (base.theme || 'social');
   if (Array.isArray(incoming.items)) {
     base.items = base.items.map(def => {
       const saved = incoming.items.find(item => item && item.id === def.id);
@@ -1167,20 +1178,24 @@ function syncQrControls() {
   const showEl = document.getElementById('qrShow');
   const sizeEl = document.getElementById('qrSize');
   const labelEl = document.getElementById('qrSizeLabel');
+  const themeEl = document.getElementById('qrTheme');
   if (showEl) showEl.checked = qrSettings.show !== false;
   if (sizeEl) sizeEl.value = Number(qrSettings.size || 72);
   if (labelEl) labelEl.textContent = Number(qrSettings.size || 72);
+  if (themeEl) themeEl.value = qrSettings.theme || 'social';
 }
 function updateQrControls() {
   const showEl = document.getElementById('qrShow');
   const sizeEl = document.getElementById('qrSize');
+  const themeEl = document.getElementById('qrTheme');
   qrSettings.show = showEl ? !!showEl.checked : qrSettings.show !== false;
   qrSettings.size = Math.max(48, Math.min(120, Math.round(Number(sizeEl?.value || qrSettings.size || 72))));
+  qrSettings.theme = themeEl?.value || qrSettings.theme || 'social';
   syncQrControls();
   renderQrLayer();
   saveQrSettings();
   renderPrintPreviews();
-  statusEl.textContent = 'QR settings saved. Drag any QR code to reposition it.';
+  statusEl.textContent = 'QR settings saved. Drag any QR code to reposition them. Color accents stay outside the code for scan safety.';
 }
 function resetQrCodes() {
   qrSettings = cloneDefaultQrSettings();
@@ -1190,6 +1205,23 @@ function resetQrCodes() {
   renderPrintPreviews();
   statusEl.textContent = 'QR code layout reset.';
 }
+function getQrThemeStyles(item) {
+  const theme = qrSettings.theme || 'social';
+  const themes = {
+    white: {cardBg:'rgba(255,255,255,.96)', cardBorder:'rgba(6,47,69,.18)', accent:'rgba(6,47,69,.30)', labelBg:'rgba(6,47,69,.06)', labelColor:'#062f45'},
+    gold: {cardBg:'rgba(255,249,238,.97)', cardBorder:'rgba(214,163,63,.45)', accent:'#d6a33f', labelBg:'rgba(214,163,63,.16)', labelColor:'#6b4c08'},
+    navy: {cardBg:'rgba(250,252,253,.98)', cardBorder:'rgba(6,47,69,.30)', accent:'#062f45', labelBg:'rgba(6,47,69,.12)', labelColor:'#062f45'}
+  };
+  if (theme !== 'social') return themes[theme] || themes.white;
+  if (item.id === 'facebook') return {cardBg:'rgba(247,251,255,.98)', cardBorder:'rgba(24,119,242,.30)', accent:'#1877f2', labelBg:'rgba(24,119,242,.14)', labelColor:'#114b96'};
+  if (item.id === 'instagram') return {cardBg:'rgba(255,249,252,.98)', cardBorder:'rgba(193,53,132,.28)', accent:'#c13584', labelBg:'rgba(193,53,132,.14)', labelColor:'#8a285f'};
+  return {cardBg:'rgba(255,249,238,.97)', cardBorder:'rgba(214,163,63,.45)', accent:'#d6a33f', labelBg:'rgba(214,163,63,.16)', labelColor:'#6b4c08'};
+}
+function qrThemeStyleVars(item) {
+  const s = getQrThemeStyles(item);
+  return `--qr-card-bg:${s.cardBg};--qr-card-border:${s.cardBorder};--qr-accent:${s.accent};--qr-label-bg:${s.labelBg};--qr-label-color:${s.labelColor};`;
+}
+
 function renderQrLayer() {
   const layer = document.getElementById('qrLayer');
   if (!layer) return;
@@ -1198,7 +1230,7 @@ function renderQrLayer() {
   layer.innerHTML = qrSettings.items.map(item => `
     <div class="qrOverlay ${item.id === selectedQrId ? 'selected' : ''}" data-qr-id="${escapeHTML(item.id)}"
       title="${escapeHTML(item.label)} QR"
-      style="left:${Number(item.x || 0)}px;top:${Number(item.y || 0)}px;--qr-size:${size}px;">
+      style="left:${Number(item.x || 0)}px;top:${Number(item.y || 0)}px;--qr-size:${size}px;${qrThemeStyleVars(item)}">
       <img src="${item.qrData}" alt="${escapeHTML(item.label)} QR">
       <div class="qrLabel">${escapeHTML(item.label)}</div>
     </div>`).join('');
@@ -1263,7 +1295,7 @@ function printQrMarkup() {
   const items = qrSettings.items.map(item => {
     const leftIn = ((Number(item.x) - PRINT_CROP_X) / PRINT_CROP_W) * PRINT_BODY_WIDTH_IN;
     const topIn = PRINT_BODY_TOP_IN + ((Number(item.y) - PRINT_CROP_Y) / PRINT_CROP_H) * PRINT_BODY_HEIGHT_IN;
-    return `<div class="printQrCode" style="left:${leftIn.toFixed(4)}in;top:${topIn.toFixed(4)}in;width:${sizeIn.toFixed(4)}in;"><img src="${item.qrData}" alt="${escapeHTML(item.label)} QR"><div class="qrLabel">${escapeHTML(item.label)}</div></div>`;
+    return `<div class="printQrCode" style="left:${leftIn.toFixed(4)}in;top:${topIn.toFixed(4)}in;width:${sizeIn.toFixed(4)}in;${qrThemeStyleVars(item)}"><img src="${item.qrData}" alt="${escapeHTML(item.label)} QR"><div class="qrLabel">${escapeHTML(item.label)}</div></div>`;
   }).join('');
   return `<div class="printQrLayer">${items}</div>`;
 }
