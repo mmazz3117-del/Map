@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayland Square Postcard Project Manager — v132 Full Project QR Save</title>
+<title>PRINT MAP — Wayland Square Postcard Project Manager v133 — Pan Drag Fix</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -56,9 +56,9 @@
 
   /* Map workspace */
   #mapPanel { height:calc(100vh - 58px); overflow:hidden; }
-  #viewport { position:relative; z-index:1; width:100vw; height:calc(100vh - 116px); overflow:hidden; background:#dfe7ec; cursor:grab; }
+  #viewport { position:relative; z-index:1; width:100vw; height:calc(100vh - 116px); overflow:hidden; background:#dfe7ec; cursor:grab; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; overscroll-behavior:none; }
   #viewport.pinning { cursor:crosshair; } #viewport.dragging { cursor:grabbing; }
-  #world { position:absolute; left:0; top:0; transform-origin:0 0; }
+  #world { position:absolute; left:0; top:0; transform-origin:0 0; user-select:none; -webkit-user-select:none; -webkit-user-drag:none; }
   #map { display:block; width:1658px; height:1448px; user-select:none; -webkit-user-drag:none; pointer-events:none; }
   .pin { position:absolute; width:var(--pin-size,30px); height:var(--pin-size,30px); border-radius:50% 50% 50% 0; background:var(--pin-color,#062f45); color:var(--pin-text,#fff); border:var(--pin-border,1px) solid #ffffff; box-shadow:none; filter:none; display:flex; align-items:center; justify-content:center; font-size:calc(var(--pin-size,30px) * .38); font-weight:800; cursor:grab; transform:translate(-50%,-100%) rotate(-45deg); transform-origin:center center; z-index:10; touch-action:none; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
   .pin .num { transform:rotate(45deg); line-height:1; }
@@ -623,7 +623,7 @@
 </head>
 <body>
 <header>
-  <h1>Wayland Square Postcard Project Manager v132 Full Project QR Save</h1>
+  <h1>PRINT MAP — Wayland Square Postcard Project Manager v133 — Pan Drag Fix</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -2042,7 +2042,7 @@ function savePrintSpacingSetting() { savePrintSettings(true); }
 
 /* Map tool */
 const viewport = document.getElementById('viewport'), world = document.getElementById('world'), zoomLabel = document.getElementById('zoomLabel'), statusEl = document.getElementById('status'), pinSizeInput = document.getElementById('pinSize'), pinSizeLabel = document.getElementById('pinSizeLabel'), pinColorInput = document.getElementById('pinColor'), pinDirectionInput = document.getElementById('pinDirection'), pinBorderInput = document.getElementById('pinBorder'), pinBorderLabel = document.getElementById('pinBorderLabel'), leaderEnabledInput = document.getElementById('leaderEnabled'), leaderWidthInput = document.getElementById('leaderWidth'), leaderWidthLabel = document.getElementById('leaderWidthLabel'), leaderLayer = document.getElementById('leaderLayer'), leaderAnchorHandle = document.getElementById('leaderAnchorHandle');
-let scale=1, panX=0, panY=0, mode='pan', isPanning=false, panStart={x:0,y:0,panX:0,panY:0}, selected=null, pinsVisible=true, draggedPin=null, draggedAnchor=false;
+let scale=1, panX=0, panY=0, mode='pan', isPanning=false, panPointerId=null, panStart={x:0,y:0,panX:0,panY:0}, selected=null, pinsVisible=true, draggedPin=null, draggedAnchor=false;
 const MAP_W=1658, MAP_H=1448, PIN_STORAGE_KEY='waylandSquarePinsV113ExactWorking';
 const PIN_UNDO_STORAGE_KEY='waylandSquarePinUndoHistoryV113';
 const PIN_REDO_STORAGE_KEY='waylandSquarePinRedoHistoryV113';
@@ -2450,9 +2450,49 @@ function centerMap() { panX=(viewport.clientWidth-MAP_W*scale)/2; panY=(viewport
 function zoomAt(factor,cx=viewport.clientWidth/2,cy=viewport.clientHeight/2) { const before=screenToMap(cx+viewport.getBoundingClientRect().left,cy+viewport.getBoundingClientRect().top); scale=Math.max(.25,Math.min(5,scale*factor)); panX=cx-before.x*scale; panY=cy-before.y*scale; applyTransform(); }
 function zoomIn() { zoomAt(1.18); } function zoomOut() { zoomAt(1/1.18); }
 viewport.addEventListener('wheel', e => { e.preventDefault(); const r=viewport.getBoundingClientRect(); zoomAt(e.deltaY<0?1.12:1/1.12,e.clientX-r.left,e.clientY-r.top); }, {passive:false});
-viewport.addEventListener('pointerdown', e => { if (e.target.closest('.pin') || e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay')) return; if (mode==='pin') { const p=screenToMap(e.clientX,e.clientY); addPin({x:p.x,y:p.y}); return; } isPanning=true; viewport.classList.add('dragging'); panStart={x:e.clientX,y:e.clientY,panX,panY}; viewport.setPointerCapture(e.pointerId); });
-viewport.addEventListener('pointermove', e => { if (moveLeaderAnchorDrag(e)) return; if (moveTreeDrag(e)) return; if (!isPanning) return; panX=panStart.panX+(e.clientX-panStart.x); panY=panStart.panY+(e.clientY-panStart.y); applyTransform(); });
-viewport.addEventListener('pointerup', e => { endLeaderAnchorDrag(e); endTreeDrag(); isPanning=false; viewport.classList.remove('dragging'); }); viewport.addEventListener('pointercancel', e => { endLeaderAnchorDrag(e); endTreeDrag(); isPanning=false; viewport.classList.remove('dragging'); });
+// v134 pan fix: prevent native browser image/element dragging and use window-level pointer tracking.
+function startViewportPan(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  if (e.target.closest('.pin') || e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (mode==='pin') { const p=screenToMap(e.clientX,e.clientY); addPin({x:p.x,y:p.y}); return; }
+  isPanning=true;
+  panPointerId=e.pointerId ?? null;
+  viewport.classList.add('dragging');
+  panStart={x:e.clientX,y:e.clientY,panX,panY};
+}
+function moveViewportPointer(e) {
+  if (moveLeaderAnchorDrag(e)) return;
+  if (moveTreeDrag(e)) return;
+  if (!isPanning) return;
+  if (panPointerId !== null && e.pointerId !== undefined && e.pointerId !== panPointerId) return;
+  e.preventDefault();
+  e.stopPropagation();
+  panX=panStart.panX+(e.clientX-panStart.x);
+  panY=panStart.panY+(e.clientY-panStart.y);
+  applyTransform();
+}
+function endViewportPointer(e) {
+  endLeaderAnchorDrag(e);
+  endTreeDrag();
+  if (!isPanning) return;
+  if (panPointerId !== null && e && e.pointerId !== undefined && e.pointerId !== panPointerId) return;
+  isPanning=false;
+  panPointerId=null;
+  viewport.classList.remove('dragging');
+}
+function cancelNativeMapDrag(e){ e.preventDefault(); return false; }
+viewport.addEventListener('pointerdown', startViewportPan, true);
+window.addEventListener('pointermove', moveViewportPointer, {passive:false});
+window.addEventListener('pointerup', endViewportPointer, true);
+window.addEventListener('pointercancel', endViewportPointer, true);
+window.addEventListener('blur', endViewportPointer, true);
+document.addEventListener('dragstart', cancelNativeMapDrag, true);
+document.addEventListener('dragover', cancelNativeMapDrag, true);
+document.addEventListener('drop', cancelNativeMapDrag, true);
+document.addEventListener('selectstart', e => { if (isPanning) e.preventDefault(); }, true);
+document.querySelectorAll('img').forEach(img => { img.draggable=false; img.addEventListener('dragstart', cancelNativeMapDrag, true); });
 leaderAnchorHandle?.addEventListener('pointerdown', startLeaderAnchorDrag);
 const mapBrandOverlayEl = document.getElementById('mapBrandOverlay');
 mapBrandOverlayEl?.addEventListener('pointerdown', startBrandDrag);
