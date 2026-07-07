@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PRINT MAP v139</title>
-<meta name="application-name" content="PRINT MAP v139">
-<meta name="apple-mobile-web-app-title" content="PRINT MAP v139">
+<title>Print Map Editor v139</title>
+<meta name="application-name" content="Print Map Editor v139">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v139">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -34,7 +34,9 @@
   .treeLayer { position:absolute; inset:0; pointer-events:none; z-index:3; }
   .treeStamp { position:absolute; transform:translate(-50%,-50%); transform-origin:center center; width:var(--tree-size,28px); height:var(--tree-size,28px); cursor:grab; pointer-events:auto; user-select:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,.12)); }
   .treeStamp.selected { outline:2px dashed #ff9d2e; outline-offset:3px; border-radius:999px; }
+  .treeStamp.dragging { cursor:grabbing; outline:2px dashed #ff9d2e; outline-offset:3px; }
   .treeInsetBox.selected { outline:none; }
+  .treeInsetBox.dragging { outline:2px dashed #ff9d2e !important; outline-offset:3px; }
   .treeStamp svg { width:100%; height:100%; display:block; overflow:visible; }
   .treeCluster { width:calc(var(--tree-size,34px) * 1.45); height:var(--tree-size,34px); }
   .treeCompass { width:calc(var(--tree-size,32px) * 1.25); height:calc(var(--tree-size,32px) * 1.25); }
@@ -627,7 +629,7 @@
 </head>
 <body>
 <header>
-  <h1>PRINT MAP v139</h1>
+  <h1>Print Map Editor v139</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -1622,7 +1624,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'PRINT MAP v139 Full Project Includes Decor',
+    version:'Print Map Editor v139 Full Project Includes Decor',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
@@ -1760,6 +1762,22 @@ function importFullProject() {
       decorSettings = Object.assign({greenTint:false, trees:true}, data.decorSettings || {});
       decorSettings.greenTint = false;
       treeStamps = Array.isArray(data.treeStamps) ? data.treeStamps.filter(t => t.type !== 'bench') : [];
+      selectedTreeId = null;
+      saveDecor();
+      renderDecorations();
+    } else if (Array.isArray(data.decorItems)) {
+      // Compatibility with digital-map JSON exports: restore decor/address boxes when present.
+      decorSettings = {greenTint:false, trees:true};
+      treeStamps = data.decorItems.map((item, i) => ({
+        id:item.id || `decor_${Date.now()}_${i}`,
+        type:item.type || 'single',
+        x:Math.round(Number(item.x || 0)),
+        y:Math.round(Number(item.y || 0)),
+        size:Number(item.size || (item.type === 'nearby' ? 210 : (item.type === 'compass' ? 42 : (item.type === 'cluster' ? 34 : 28)))),
+        rotation:Number(item.rotation || 0),
+        opacity:Number(item.opacity || 1),
+        text:item.text || ''
+      })).filter(t => t.type !== 'bench');
       selectedTreeId = null;
       saveDecor();
       renderDecorations();
@@ -2418,29 +2436,68 @@ function handleDecorImport(event) {
 }
 
 function startTreeDrag(e) {
+  e.preventDefault();
   e.stopPropagation();
-  const id = e.currentTarget.dataset.id;
-  selectTree(id);
+  const el = e.currentTarget;
+  const id = el.dataset.id;
   const t = treeStamps.find(x => x.id === id);
-  draggedTree = {id, startX:e.clientX, startY:e.clientY, origX:t.x, origY:t.y};
-  e.currentTarget.setPointerCapture(e.pointerId);
+  if (!t) return;
+
+  // v139 drag fix: select the decor/address box without re-rendering it first.
+  // Re-rendering before pointer capture made the newly added extra address box hard/impossible to move.
+  selectedTreeId = id;
+  const input = document.getElementById('treeSize');
+  const fallbackSize = t.type === 'nearby' ? 210 : (t.type === 'cluster' ? 34 : (t.type === 'compass' ? 42 : 28));
+  if (input) input.value = t.size || fallbackSize;
+  previewTreeSettings();
+  document.querySelectorAll('.treeStamp.selected, .treeStamp.dragging').forEach(node => {
+    node.classList.remove('selected');
+    node.classList.remove('dragging');
+  });
+  el.classList.add('selected', 'dragging');
+
+  draggedTree = {id, pointerId:e.pointerId, startX:e.clientX, startY:e.clientY, origX:Number(t.x || 0), origY:Number(t.y || 0), el};
+  try { el.setPointerCapture(e.pointerId); } catch (_) {}
+  statusEl.textContent = t.type === 'nearby'
+    ? 'Dragging address/nearby box — release to save its position.'
+    : 'Dragging decor item — release to save its position.';
 }
 
 function moveTreeDrag(e) {
   if (!draggedTree) return false;
+  if (draggedTree.pointerId != null && e.pointerId !== undefined && e.pointerId !== draggedTree.pointerId) return false;
   const t = treeStamps.find(x => x.id === draggedTree.id);
   if (!t) return false;
-  t.x = Math.round(draggedTree.origX + (e.clientX - draggedTree.startX)/scale);
-  t.y = Math.round(draggedTree.origY + (e.clientY - draggedTree.startY)/scale);
-  renderTrees();
+  e.preventDefault();
+  e.stopPropagation();
+  t.x = Math.round(Math.max(0, Math.min(MAP_W, draggedTree.origX + (e.clientX - draggedTree.startX)/scale)));
+  t.y = Math.round(Math.max(0, Math.min(MAP_H, draggedTree.origY + (e.clientY - draggedTree.startY)/scale)));
+  const el = draggedTree.el && document.body.contains(draggedTree.el)
+    ? draggedTree.el
+    : document.querySelector(`.treeStamp[data-id="${CSS.escape(draggedTree.id)}"]`);
+  if (el) {
+    el.style.left = `${t.x}px`;
+    el.style.top = `${t.y}px`;
+  }
   return true;
 }
 
-function endTreeDrag() {
+function endTreeDrag(e) {
   if (!draggedTree) return false;
+  const info = draggedTree;
   draggedTree = null;
+  const el = info.el && document.body.contains(info.el)
+    ? info.el
+    : document.querySelector(`.treeStamp[data-id="${CSS.escape(info.id)}"]`);
+  try { el?.releasePointerCapture(info.pointerId); } catch (_) {}
+  el?.classList.remove('dragging');
   saveDecor();
+  renderTrees();
   renderPrintPreviews();
+  const t = treeStamps.find(x => x.id === info.id);
+  statusEl.textContent = t?.type === 'nearby'
+    ? 'Address/nearby box position saved.'
+    : 'Decor item position saved.';
   return true;
 }
 
@@ -2525,7 +2582,7 @@ viewport.addEventListener('wheel', e => { e.preventDefault(); const r=viewport.g
 // v134 pan fix: prevent native browser image/element dragging and use window-level pointer tracking.
 function startViewportPan(e) {
   if (e.button !== undefined && e.button !== 0) return;
-  if (e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay')) return;
+  if (e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay') || e.target.closest('.treeStamp')) return;
   const hitPin = e.target.closest('.pin');
   // In Add/Edit Pins mode, clicking an existing pin should let the pin-drag handler move it.
   // In Move Map mode, pins are locked and dragging over a pin pans the map instead.
