@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PRINT MAP v138</title>
-<meta name="application-name" content="PRINT MAP v138">
-<meta name="apple-mobile-web-app-title" content="PRINT MAP v138">
+<title>PRINT MAP v139</title>
+<meta name="application-name" content="PRINT MAP v139">
+<meta name="apple-mobile-web-app-title" content="PRINT MAP v139">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -627,7 +627,7 @@
 </head>
 <body>
 <header>
-  <h1>PRINT MAP v138</h1>
+  <h1>PRINT MAP v139</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -1622,12 +1622,13 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Wayland Square Postcard Project v132',
+    version:'PRINT MAP v139 Full Project Includes Decor',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
     brand:brandSettings,
-    qrCodes:qrSettings, // v132: saves QR show/size/style/positions with the full project JSON
+    qrCodes:qrSettings, // saves QR show/size/style/positions with the full project JSON
+    decor:{decorSettings, treeStamps}, // v139: saves nearby/address box, compass, trees, and other decor with the full project JSON
     directoryScale:directoryScaleSettings,
     directoryTitleScale,
     printLayout:printLayoutSettings
@@ -1724,16 +1725,82 @@ function downloadDigitalMapJSON() {
 function exportDirectoryJSON() { document.getElementById('directoryData').value = JSON.stringify(businesses, null, 2); showTab('directory'); }
 function exportFullProject() { document.getElementById('directoryData').value = JSON.stringify(buildFullProjectExport(), null, 2); showTab('directory'); }
 function importFullProject() {
-  try { const data = JSON.parse(document.getElementById('directoryData').value); businesses = Array.isArray(data) ? data : data.businesses; if (!Array.isArray(businesses)) throw new Error('No businesses array'); if (data.pins) { clearPins(false); data.pins.forEach(addPin); } if (data.brand) { brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data.brand); syncBrandControls(); applyBranding(false); } if (data.qrCodes) { qrSettings = normalizeQrSettings(data.qrCodes); syncQrControls(); renderQrLayer(); saveQrSettings(); } if (data.directoryScale) { directoryScaleSettings = Object.assign({auto:true, percent:95}, data.directoryScale); directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent); saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } else if (data.directoryLayout) { const migration = {standard:100, compact:93, extra:87, ultra:82}; directoryScaleSettings = data.directoryLayout.mode === 'auto' ? {auto:true, percent:95} : {auto:false, percent:migration[data.directoryLayout.mode] || 95}; saveDirectoryScaleSettings(); syncDirectoryScaleControls(); } if (data.directoryTitleScale != null) { directoryTitleScale = Math.max(85, Math.min(130, Math.round(Number(data.directoryTitleScale) || 100))); saveDirectoryTitleScale(); syncDirectoryTitleScaleControls(); } if (data.printLayout) { printLayoutSettings = Object.assign(printLayoutSettings, data.printLayout); savePrintLayoutSettings(); applyPrintLayoutSettings(); } saveDirectoryLocal(false); renderBusinessTable(); renderPreview(); renderPrintPreviews(); syncPinLabels(); statusEl.textContent = 'Imported full project data, including QR layout when present.'; alert('Imported project/directory data. QR layout is restored when the JSON includes qrCodes.'); }
-  catch(e) { alert('Could not import JSON. Paste either a business array or full project export.'); }
+  try {
+    const data = JSON.parse(document.getElementById('directoryData').value);
+    businesses = Array.isArray(data) ? data : data.businesses;
+    if (!Array.isArray(businesses)) throw new Error('No businesses array');
+
+    if (data.pins) {
+      clearPins(false);
+      data.pins.forEach(addPin);
+    }
+
+    if (data.brand) {
+      brandSettings = Object.assign({logoData:'', size:58, position:'bottom-right', directoryLift:28, show:true}, data.brand);
+      syncBrandControls();
+      applyBranding(false);
+    }
+
+    if (data.qrCodes) {
+      qrSettings = normalizeQrSettings(data.qrCodes);
+      syncQrControls();
+      renderQrLayer();
+      saveQrSettings();
+    }
+
+    // v139: restore the nearby/address box, compass, trees, and other decor from the Full Project JSON.
+    if (data.decor) {
+      decorSettings = Object.assign({greenTint:false, trees:true}, data.decor.decorSettings || {});
+      decorSettings.greenTint = false;
+      treeStamps = Array.isArray(data.decor.treeStamps) ? data.decor.treeStamps.filter(t => t.type !== 'bench') : [];
+      selectedTreeId = null;
+      saveDecor();
+      renderDecorations();
+    } else if (data.decorSettings || data.treeStamps) {
+      decorSettings = Object.assign({greenTint:false, trees:true}, data.decorSettings || {});
+      decorSettings.greenTint = false;
+      treeStamps = Array.isArray(data.treeStamps) ? data.treeStamps.filter(t => t.type !== 'bench') : [];
+      selectedTreeId = null;
+      saveDecor();
+      renderDecorations();
+    }
+
+    if (data.directoryScale) {
+      directoryScaleSettings = Object.assign({auto:true, percent:95}, data.directoryScale);
+      directoryScaleSettings.percent = clampDirectoryPercent(directoryScaleSettings.percent);
+      saveDirectoryScaleSettings();
+      syncDirectoryScaleControls();
+    } else if (data.directoryLayout) {
+      const migration = {standard:100, compact:93, extra:87, ultra:82};
+      directoryScaleSettings = data.directoryLayout.mode === 'auto' ? {auto:true, percent:95} : {auto:false, percent:migration[data.directoryLayout.mode] || 95};
+      saveDirectoryScaleSettings();
+      syncDirectoryScaleControls();
+    }
+
+    if (data.directoryTitleScale != null) {
+      directoryTitleScale = Math.max(85, Math.min(130, Math.round(Number(data.directoryTitleScale) || 100)));
+      saveDirectoryTitleScale();
+      syncDirectoryTitleScaleControls();
+    }
+
+    if (data.printLayout) {
+      printLayoutSettings = Object.assign(printLayoutSettings, data.printLayout);
+      savePrintLayoutSettings();
+      applyPrintLayoutSettings();
+    }
+
+    saveDirectoryLocal(false);
+    renderBusinessTable();
+    renderPreview();
+    renderPrintPreviews();
+    syncPinLabels();
+    statusEl.textContent = 'Imported full project data, including QR layout and decor when present.';
+    alert('Imported project data. QR layout and decor/address boxes are restored when the JSON includes them.');
+  } catch(e) {
+    alert('Could not import project JSON. Make sure it is a Full Project JSON file.');
+  }
 }
-function downloadDirectoryCSV() {
-  const rows = [['number','category','name','address'], ...businesses.sort((a,b)=>Number(a.number)-Number(b.number)).map(b => [b.number,b.category,b.name,b.address])];
-  const csv = rows.map(r => r.map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='wayland_square_business_directory_master.csv'; a.click(); URL.revokeObjectURL(a.href);
-}
-async function copyDirectoryBox() { await navigator.clipboard.writeText(document.getElementById('directoryData').value); }
-function downloadProjectJSON() { const json = JSON.stringify(buildFullProjectExport(), null, 2); const box = document.getElementById('directoryData'); if (box) box.value = json; const blob = new Blob([json], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='wayland_square_postcard_project_data.json'; a.click(); URL.revokeObjectURL(a.href); statusEl.textContent = 'Full Project JSON downloaded, including QR size, positions, and style.'; }
+function downloadProjectJSON() { const json = JSON.stringify(buildFullProjectExport(), null, 2); const box = document.getElementById('directoryData'); if (box) box.value = json; const blob = new Blob([json], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='wayland_square_postcard_project_data.json'; a.click(); URL.revokeObjectURL(a.href); statusEl.textContent = 'Full Project JSON downloaded, including QR layout and decor/address boxes.'; }
 function triggerProjectJSONImport() {
   const input = document.getElementById('projectFileInput');
   if (input) { input.value = ''; input.click(); }
