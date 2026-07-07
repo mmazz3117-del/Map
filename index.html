@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v139</title>
-<meta name="application-name" content="Print Map Editor v139">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v139">
+<title>Print Map Editor v140</title>
+<meta name="application-name" content="Print Map Editor v140">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v140">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -629,7 +629,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v139</h1>
+  <h1>Print Map Editor v140</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -664,7 +664,7 @@
         <button class="btnTiny" onclick="toggleTrees()">Show/Hide Decor</button>
         <button class="btnTiny" onclick="addTree('single')">Add Tree</button>
         <button class="btnTiny" onclick="addTree('cluster')">Add Cluster</button>
-        <button class="btnTiny" onclick="addTree('compass')">Add Compass</button>
+        <button class="btnTiny" onclick="addCompass()">Add Compass</button>
         <button class="btnTiny" onclick="addTree('nearby')">Add Nearby Box</button>
         <label>Element Size</label><input id="treeSize" type="range" min="10" max="320" value="28" oninput="previewTreeSettings()"><span id="treeSizeLabel" class="pinValueBadge">28</span>
         <button class="btnTiny" onclick="applyTreeSize()">Apply Size</button>
@@ -1624,13 +1624,13 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v139 Full Project Includes Decor',
+    version:'Print Map Editor v140 Full Project Includes Address Box Drag + Compass Fix',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
     brand:brandSettings,
     qrCodes:qrSettings, // saves QR show/size/style/positions with the full project JSON
-    decor:{decorSettings, treeStamps}, // v139: saves nearby/address box, compass, trees, and other decor with the full project JSON
+    decor:{decorSettings, treeStamps}, // v140: saves nearby/address box, compass, trees, and other decor with the full project JSON
     directoryScale:directoryScaleSettings,
     directoryTitleScale,
     printLayout:printLayoutSettings
@@ -1750,7 +1750,7 @@ function importFullProject() {
       saveQrSettings();
     }
 
-    // v139: restore the nearby/address box, compass, trees, and other decor from the Full Project JSON.
+    // v140: restore the nearby/address box, compass, trees, and other decor from the Full Project JSON.
     if (data.decor) {
       decorSettings = Object.assign({greenTint:false, trees:true}, data.decor.decorSettings || {});
       decorSettings.greenTint = false;
@@ -2339,17 +2339,34 @@ function selectTree(id) {
 
 function addTree(type='single') {
   if (type === 'bench') type = 'single';
+  const validTypes = new Set(['single', 'cluster', 'compass', 'nearby']);
+  if (!validTypes.has(type)) type = 'single';
+
   const r = viewport.getBoundingClientRect();
   let p = screenToMap(r.left + r.width/2, r.top + r.height/2);
+
+  // Keep added decor visible on the actual print-map crop. This avoids the compass being
+  // created off-screen or outside the print area when the map is panned/zoomed.
+  const PRINT_DECOR_X = 360;
+  const PRINT_DECOR_Y = 0;
+  const PRINT_DECOR_W = 1175;
+  const PRINT_DECOR_H = 1448;
+  const insidePrintCrop = p.x >= PRINT_DECOR_X && p.x <= PRINT_DECOR_X + PRINT_DECOR_W && p.y >= PRINT_DECOR_Y && p.y <= PRINT_DECOR_Y + PRINT_DECOR_H;
 
   // Nearby box belongs inside the print crop, so place it near the print-preview bottom-left by default.
   if (type === 'nearby') {
     p = {x:450, y:1240};
+  } else if (type === 'compass' && !insidePrintCrop) {
+    p = {x:PRINT_DECOR_X + PRINT_DECOR_W - 95, y:135};
   }
 
   const sizeInput = document.getElementById('treeSize');
   const defaultSize = type==='nearby' ? 210 : (type==='cluster' ? 34 : (type==='compass' ? 42 : 28));
-  const useSize = type==='nearby' ? defaultSize : Number(sizeInput?.value || defaultSize);
+  // The compass should always start at a normal usable size, even if the slider was left at
+  // the large address-box size. It can still be resized after selecting it.
+  const useSize = (type==='nearby' || type==='compass') ? defaultSize : Number(sizeInput?.value || defaultSize);
+  if (type === 'compass' && sizeInput) sizeInput.value = defaultSize;
+  decorSettings.trees = true;
   const t = {id:'tree_'+Date.now(), type, x:Math.round(p.x), y:Math.round(p.y), size:useSize};
   treeStamps.push(t);
   selectedTreeId = t.id;
@@ -2358,7 +2375,11 @@ function addTree(type='single') {
   renderPrintPreviews();
   statusEl.textContent = type === 'nearby'
     ? 'Nearby Location box added inside the print-preview crop. Drag/resize as needed.'
-    : 'Decor item added.';
+    : (type === 'compass' ? 'Compass added inside the print-map area. Drag/resize as needed.' : 'Decor item added.');
+}
+
+function addCompass() {
+  addTree('compass');
 }
 
 function applyTreeSize() {
@@ -2443,7 +2464,7 @@ function startTreeDrag(e) {
   const t = treeStamps.find(x => x.id === id);
   if (!t) return;
 
-  // v139 drag fix: select the decor/address box without re-rendering it first.
+  // v140 drag fix: select the decor/address box without re-rendering it first.
   // Re-rendering before pointer capture made the newly added extra address box hard/impossible to move.
   selectedTreeId = id;
   const input = document.getElementById('treeSize');
