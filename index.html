@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PRINT MAP — Wayland Square Postcard Project Manager v133 — Pan Drag Fix</title>
+<title>PRINT MAP — Wayland Square Postcard Project Manager v137 — Undo + Print Match Tool</title>
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -623,7 +623,7 @@
 </head>
 <body>
 <header>
-  <h1>PRINT MAP — Wayland Square Postcard Project Manager v133 — Pan Drag Fix</h1>
+  <h1>PRINT MAP — Wayland Square Postcard Project Manager v137 — Undo + Print Match Tool</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -636,7 +636,7 @@
   <div id="mapPanel">
     <div class="toolbar">
       <button id="panBtn" class="active" onclick="setMode('pan')">✋ Move Map</button>
-      <button id="pinBtn" onclick="setMode('pin')">📍 Add Pin Mode</button>
+      <button id="pinBtn" onclick="setMode('pin')">📍 Add/Edit Pins</button>
       <button onclick="zoomOut()">− Zoom</button><button onclick="zoomIn()">+ Zoom</button><button onclick="fitMap()">Fit</button><button onclick="centerMap()">Center</button><span id="zoomLabel">100%</span>
       <div class="controlGroup"><label for="pinNumber">#</label><input id="pinNumber" type="number" min="1" max="99" value="1"><button onclick="addPinAtCenter()">Add Pin</button></div>
       <div class="controlGroup pinSliderGroup">
@@ -649,8 +649,9 @@
         <label for="printPinSpread">Print Spacing</label>
         <input id="printPinSpread" type="range" min="100" max="155" value="120" oninput="savePrintSettings()">
         <span id="printPinSpreadLabel" class="pinValueBadge">120%</span>
+        <button class="btnTiny" onclick="bakePrintSpacingIntoPins()">Make Editor Match Print 120%→100%</button>
       </div>
-      <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button><button id="undoPinBtn" onclick="undoPinChange()" disabled>↶ Undo Pin Change</button><button id="redoPinBtn" onclick="redoPinChange()" disabled>↷ Redo</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button><button onclick="restoreCategoryColors()">Restore Category Colors</button></div>
+      <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button><button id="undoPinBtn" onclick="undoPinChange()" disabled>↶ Undo Pin Move/Edit</button><button id="redoPinBtn" onclick="redoPinChange()" disabled>↷ Redo</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button><button onclick="restoreCategoryColors()">Restore Category Colors</button></div>
       <div class="controlGroup decorGroup">
         <span>Decor</span>
         <button class="btnTiny" onclick="toggleGreenTint()">Greens</button>
@@ -2444,7 +2445,7 @@ function endBrandDrag(e) {
 
 function applyTransform() { world.style.transform=`translate(${panX}px, ${panY}px) scale(${scale})`; zoomLabel.textContent=Math.round(scale*100)+'%'; }
 function screenToMap(clientX,clientY) { const r=viewport.getBoundingClientRect(); return {x:(clientX-r.left-panX)/scale,y:(clientY-r.top-panY)/scale}; }
-function setMode(next) { mode=next; document.getElementById('panBtn').classList.toggle('active',mode==='pan'); document.getElementById('pinBtn').classList.toggle('active',mode==='pin'); viewport.classList.toggle('pinning',mode==='pin'); statusEl.textContent=mode==='pan'?'Move Map mode: drag the map background.':'Add Pin Mode: click the map to place the next pin.'; }
+function setMode(next) { mode=next; document.getElementById('panBtn').classList.toggle('active',mode==='pan'); document.getElementById('pinBtn').classList.toggle('active',mode==='pin'); viewport.classList.toggle('pinning',mode==='pin'); statusEl.textContent=mode==='pan'?'Move Map mode: drag anywhere on the map, including over pins. Pins are locked in this mode.':'Add/Edit Pins mode: click empty map area to place the next pin, or drag an existing pin to move it.'; }
 function fitMap() { if (!viewport) return; const w=viewport.clientWidth,h=viewport.clientHeight; scale=Math.min(w/MAP_W,h/MAP_H)*0.96; panX=(w-MAP_W*scale)/2; panY=(h-MAP_H*scale)/2; applyTransform(); }
 function centerMap() { panX=(viewport.clientWidth-MAP_W*scale)/2; panY=(viewport.clientHeight-MAP_H*scale)/2; applyTransform(); }
 function zoomAt(factor,cx=viewport.clientWidth/2,cy=viewport.clientHeight/2) { const before=screenToMap(cx+viewport.getBoundingClientRect().left,cy+viewport.getBoundingClientRect().top); scale=Math.max(.25,Math.min(5,scale*factor)); panX=cx-before.x*scale; panY=cy-before.y*scale; applyTransform(); }
@@ -2453,7 +2454,11 @@ viewport.addEventListener('wheel', e => { e.preventDefault(); const r=viewport.g
 // v134 pan fix: prevent native browser image/element dragging and use window-level pointer tracking.
 function startViewportPan(e) {
   if (e.button !== undefined && e.button !== 0) return;
-  if (e.target.closest('.pin') || e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay')) return;
+  if (e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay')) return;
+  const hitPin = e.target.closest('.pin');
+  // In Add/Edit Pins mode, clicking an existing pin should let the pin-drag handler move it.
+  // In Move Map mode, pins are locked and dragging over a pin pans the map instead.
+  if (mode === 'pin' && hitPin) return;
   e.preventDefault();
   e.stopPropagation();
   if (mode==='pin') { const p=screenToMap(e.clientX,e.clientY); addPin({x:p.x,y:p.y}); return; }
@@ -2768,10 +2773,91 @@ function selectPin(pin) {
     renderLeaderLines();
   }
 }
-function startPinDrag(e) { e.stopPropagation(); draggedPin=e.currentTarget; selectPin(draggedPin); draggedPin.setPointerCapture(e.pointerId); draggedPin.addEventListener('pointermove', movePinDrag); draggedPin.addEventListener('pointerup', endPinDrag); draggedPin.addEventListener('pointercancel', endPinDrag); }
-function movePinDrag(e) { if(!draggedPin) return; const p=screenToMap(e.clientX,e.clientY); draggedPin.style.left=p.x+'px'; draggedPin.style.top=p.y+'px'; renderLeaderLines(); }
-function endPinDrag(e) { if(!draggedPin) return; draggedPin.releasePointerCapture(e.pointerId); draggedPin.removeEventListener('pointermove',movePinDrag); draggedPin.removeEventListener('pointerup',endPinDrag); draggedPin.removeEventListener('pointercancel',endPinDrag); draggedPin=null; renderLeaderLines(); savePinsLocal(false); }
+function startPinDrag(e) {
+  // Pin movement is intentionally locked while Move Map is active.
+  // Use Add/Edit Pins mode when you actually want to drag a pin.
+  if (mode !== 'pin') return;
+  e.preventDefault();
+  e.stopPropagation();
+  draggedPin=e.currentTarget;
+  capturePinHistory(`Move pin #${draggedPin.dataset.n}`);
+  selectPin(draggedPin);
+  draggedPin.setPointerCapture(e.pointerId);
+  draggedPin.addEventListener('pointermove', movePinDrag);
+  draggedPin.addEventListener('pointerup', endPinDrag);
+  draggedPin.addEventListener('pointercancel', endPinDrag);
+}
+function movePinDrag(e) {
+  if(!draggedPin) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const p=screenToMap(e.clientX,e.clientY);
+  draggedPin.style.left=p.x+'px';
+  draggedPin.style.top=p.y+'px';
+  renderLeaderLines();
+}
+function endPinDrag(e) {
+  if(!draggedPin) return;
+  try { draggedPin.releasePointerCapture(e.pointerId); } catch(_) {}
+  draggedPin.removeEventListener('pointermove',movePinDrag);
+  draggedPin.removeEventListener('pointerup',endPinDrag);
+  draggedPin.removeEventListener('pointercancel',endPinDrag);
+  draggedPin=null;
+  renderLeaderLines();
+  renderPrintPreviews();
+  savePinsLocal(false);
+  statusEl.textContent = 'Pin move saved. Use Undo Pin Change to reverse the last pin move.';
+}
 function getPinData() { return [...document.querySelectorAll('.pin')].map(pin=>({n:pin.dataset.n,label:pin.dataset.label,x:Math.round(parseFloat(pin.style.left)),y:Math.round(parseFloat(pin.style.top)),size:Number(pin.dataset.size||30),color:pin.dataset.color||'#062f45',textColor:pin.dataset.textColor||'#fff',direction:pin.dataset.direction||'down',border:Number(pin.dataset.border??1),leaderEnabled:leaderEnabled(pin),anchorX:Number(pin.dataset.anchorX ?? Math.round(parseFloat(pin.style.left))),anchorY:Number(pin.dataset.anchorY ?? Math.round(parseFloat(pin.style.top))),leaderWidth:Number(pin.dataset.leaderWidth ?? 1.5)})).sort((a,b)=>Number(a.n)-Number(b.n)); }
+function bakePrintSpacingIntoPins() {
+  const spreadEl = document.getElementById('printPinSpread');
+  const spreadPct = clampPrintSetting(spreadEl?.value || 100, 100, 155, 100);
+  const spread = spreadPct / 100;
+  if (spread <= 1.0001) {
+    alert('Print Spacing is already 100%, so the editor map already matches the print pin positions.');
+    return;
+  }
+  const pins = getPinData();
+  if (!pins.length) {
+    alert('There are no pins to convert.');
+    return;
+  }
+  const PRINT_CROP_X = 360, PRINT_CROP_Y = 0, PRINT_CROP_W = 1175, PRINT_CROP_H = 1448;
+  const visiblePins = pins.filter(pin =>
+    Number(pin.x) >= PRINT_CROP_X &&
+    Number(pin.x) <= PRINT_CROP_X + PRINT_CROP_W &&
+    Number(pin.y) >= PRINT_CROP_Y &&
+    Number(pin.y) <= PRINT_CROP_Y + PRINT_CROP_H
+  );
+  const conversionPins = visiblePins.length ? visiblePins : pins;
+  const centerX = conversionPins.reduce((sum, p) => sum + Number(p.x), 0) / conversionPins.length;
+  const centerY = conversionPins.reduce((sum, p) => sum + Number(p.y), 0) / conversionPins.length;
+  const message = `This will move the editor pin positions to match the current printed output using ${spreadPct}% Print Spacing, then set Print Spacing back to 100%.\n\nThis is intended as a one-time cleanup so the map editor view and final print preview match.\n\nBefore doing this, make sure you have downloaded a Full Project JSON backup. Continue?`;
+  if (!confirm(message)) return;
+  capturePinHistory(`Make editor match print spacing ${spreadPct}%`);
+  const pinEls = [...document.querySelectorAll('.pin')];
+  const visibleSet = new Set(conversionPins.map(p => String(p.n)));
+  pinEls.forEach(pin => {
+    const n = String(pin.dataset.n);
+    if (!visibleSet.has(n)) return;
+    const x = Number(parseFloat(pin.style.left));
+    const y = Number(parseFloat(pin.style.top));
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+    const nextX = Math.round(centerX + (x - centerX) * spread);
+    const nextY = Math.round(centerY + (y - centerY) * spread);
+    pin.style.left = nextX + 'px';
+    pin.style.top = nextY + 'px';
+  });
+  if (spreadEl) spreadEl.value = 100;
+  savePrintSettings(false);
+  renderLeaderLines();
+  savePinsLocal(false);
+  exportPins();
+  renderPrintPreviews();
+  previewPinSettings();
+  statusEl.textContent = `Editor pins now match the prior ${spreadPct}% print spacing output. Print Spacing is now 100%.`;
+  alert('Done. The editor pin positions now match the previous printed output, and Print Spacing has been set to 100%. Use Undo Pin Change or import your Full Project JSON backup if you need to reverse it.');
+}
 function syncPinLabels() { document.querySelectorAll('.pin').forEach(pin => { const b=businessByNumber(pin.dataset.n); if(b) { pin.dataset.label=b.name; const sm=pin.querySelector('small'); if(sm) sm.textContent=b.name; } }); }
 function exportPins() { document.getElementById('pinData').value=JSON.stringify(getPinData(),null,2); document.getElementById('pinPanel').classList.add('open'); }
 function importPins() { try { const data=JSON.parse(document.getElementById('pinData').value); capturePinHistory('Import pins'); clearPins(false); data.forEach(addPin); savePinsLocal(false); } catch(e) { alert('Could not import pin JSON.'); } }
