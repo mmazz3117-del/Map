@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PRINT MAP — Wayland Square Postcard Project Manager v137 — Undo + Print Match Tool</title>
+<title>PRINT MAP v138</title>
+<meta name="application-name" content="PRINT MAP v138">
+<meta name="apple-mobile-web-app-title" content="PRINT MAP v138">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -81,7 +83,9 @@
   .leaderAnchor.hidden { display:none; }
   .pin small { display:none; position:absolute; top:calc(var(--pin-size,30px) + 5px); left:50%; transform:translateX(-50%) rotate(45deg); background:white; color:#111; border:1px solid #c8c8c8; border-radius:6px; padding:3px 6px; white-space:nowrap; font-size:12px; font-weight:600; box-shadow:0 2px 5px rgba(0,0,0,.18); }
   .pin:hover small, .pin.selected small { display:block; }
-  #help { position:fixed; left:14px; bottom:14px; max-width:610px; background:rgba(255,255,255,.95); border:1px solid #c8d2d8; border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.35; box-shadow:0 4px 18px rgba(0,0,0,.14); z-index:20; }
+  #help { position:fixed; left:8px; bottom:86px; width:168px; max-width:168px; background:rgba(255,255,255,.94); border:1px solid #c8d2d8; border-radius:10px; padding:8px 9px; font-size:11px; line-height:1.25; box-shadow:0 3px 12px rgba(0,0,0,.12); z-index:20; }
+  #help .helpDetail { display:block; margin-top:3px; }
+  #help #status { margin-top:6px; font-size:10px; overflow-wrap:anywhere; }
   #status { margin-top:4px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; }
   #pinPanel { position:fixed; right:14px; bottom:14px; width:min(470px,calc(100vw - 28px)); background:white; border:1px solid #c8d2d8; border-radius:12px; padding:10px 12px; box-shadow:0 4px 18px rgba(0,0,0,.14); display:none; z-index:30; }
   #pinPanel.open { display:block; }
@@ -623,7 +627,7 @@
 </head>
 <body>
 <header>
-  <h1>PRINT MAP — Wayland Square Postcard Project Manager v137 — Undo + Print Match Tool</h1>
+  <h1>PRINT MAP v138</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -693,7 +697,7 @@
   <svg id="roadTintLayer" class="roadTintLayer" viewBox="0 0 1658 1448" preserveAspectRatio="none"></svg>
   <div id="treeLayer" class="treeLayer"></div>
 </div><div id="mapVectorTitle" class="mapVectorTitle"><div class="mapTitleText">WAYLAND SQUARE</div><div class="mapSubtitleRow"><span class="line"></span><span class="text">Map &amp; Business Guide</span><span class="line"></span></div></div><div id="mapBrandOverlay" class="mapBrandOverlay bottom-right"><div class="brandMonogram">WS</div></div><div id="qrLayer" class="qrLayer"></div></div></div>
-    <div id="help"><strong>Move map:</strong> use the hand tool and drag the background. <strong>Move logo/QRs:</strong> grab the Wayland Square logo or any QR code directly and drag it. <strong>Directory labels:</strong> pin tooltips use the editable business list. <div id="status">Ready.</div></div>
+    <div id="help"><strong>Quick Help</strong><span class="helpDetail"><strong>Move Map:</strong> drag map.</span><span class="helpDetail"><strong>Add/Edit Pins:</strong> move pins.</span><span class="helpDetail"><strong>Logo/QRs:</strong> drag directly.</span><div id="status">Ready.</div></div>
     <div id="pinPanel"><strong>Pin position + style JSON</strong><textarea id="pinData"></textarea><div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;"><button onclick="importPins()">Import</button><button onclick="copyPins()">Copy</button><button onclick="downloadJSON()">Download JSON</button><button onclick="savePinsLocal()">Save Pins</button><button onclick="loadPinsLocal()">Load Pins</button><button class="danger" onclick="clearPins()">Clear Pins</button></div></div>
   </div>
 </section>
