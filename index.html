@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v141</title>
-<meta name="application-name" content="Print Map Editor v141">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v141">
+<title>Print Map Editor v142</title>
+<meta name="application-name" content="Print Map Editor v142">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v142">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -636,11 +636,47 @@
     body[data-print-target="map"] .printDirectoryPage { display:none !important; }
     @page { size:6in 9in; margin:0; } /* dynamically overridden by the selected PDF page preset */
   }
+
+
+  /* v142 Dashboard Controls */
+
+  .qrLinkPanel { display:none; margin:0; padding:8px 10px; gap:8px; align-items:center; flex-wrap:wrap; background:#edf3f6; border-bottom:1px solid rgba(6,47,69,.16); box-shadow:0 1px 0 rgba(255,255,255,.6) inset; }
+  .qrLinkPanel.open { display:flex; }
+  .qrLinkPanel strong { color:#062f45; margin-right:4px; }
+  .qrLinkPanel label { display:flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:#062f45; }
+  .qrLinkPanel input { width:270px; max-width:32vw; padding:6px 8px; border:1px solid #b9cbd4; border-radius:7px; font:13px system-ui, -apple-system, Segoe UI, sans-serif; }
+  .qrLinkPanel .hint { color:#425866; font-size:12px; font-weight:600; }
+  #mapPanel { display:flex; flex-direction:column; height:calc(100vh - 58px); overflow:hidden; }
+  #viewport { height:auto; flex:1 1 auto; min-height:360px; }
+  .dashboardToolbar { display:block; padding:8px 10px; max-height:none; }
+  .primaryBar { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:8px; }
+  .zoomBadge { font-weight:800; color:var(--navy); min-width:48px; display:inline-block; }
+  .toolbarDivider { width:1px; height:30px; background:#c7d2da; display:inline-block; margin:0 2px; }
+  .dashboardNav { display:flex; gap:7px; overflow-x:auto; padding:2px 0 8px; border-top:1px solid rgba(6,47,69,.10); }
+  .dashboardNav button { padding:7px 12px; border-radius:999px; background:#fff; }
+  .dashboardNav button.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .dashboardPanels { background:#eef3f6; border:1px solid #d2dde4; border-radius:12px; padding:8px; box-shadow:0 1px 0 rgba(255,255,255,.8) inset; }
+  .dashPanel { display:none; gap:7px; align-items:center; flex-wrap:wrap; }
+  .dashPanel.active { display:flex; }
+  .dashPanelTitle { display:flex; flex-direction:column; gap:2px; min-width:205px; max-width:310px; padding:6px 8px; border-right:1px solid #ccd8df; color:var(--navy); }
+  .dashPanelTitle strong { font-size:14px; }
+  .dashPanelTitle span { font-size:12px; line-height:1.25; color:#455d6c; font-weight:600; }
+  .dashboardToolbar .controlGroup { margin:0; }
+  .dashboardToolbar button, .dashboardToolbar input, .dashboardToolbar select { padding-top:7px; padding-bottom:7px; }
+  .dashboardToolbar .btnTiny { padding:6px 8px; font-size:12px; }
+  @media (max-width:900px) {
+    header { align-items:flex-start; flex-direction:column; }
+    #mapPanel { height:calc(100vh - 96px); }
+    .primaryBar, .dashPanel { align-items:flex-start; }
+    .dashPanelTitle { border-right:0; border-bottom:1px solid #ccd8df; max-width:none; width:100%; }
+    .toolbarDivider { display:none; }
+  }
+
 </style>
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v141</h1>
+  <h1>Print Map Editor v142</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -651,57 +687,112 @@
 
 <section id="mapTab" class="tabPanel active">
   <div id="mapPanel">
-    <div class="toolbar">
-      <button id="panBtn" class="active" onclick="setMode('pan')">✋ Move Map</button>
-      <button id="pinBtn" onclick="setMode('pin')">📍 Add/Edit Pins</button>
-      <button onclick="zoomOut()">− Zoom</button><button onclick="zoomIn()">+ Zoom</button><button onclick="fitMap()">Fit</button><button onclick="centerMap()">Center</button><span id="zoomLabel">100%</span>
-      <div class="controlGroup"><label for="pinNumber">#</label><input id="pinNumber" type="number" min="1" max="99" value="1"><button onclick="addPinAtCenter()">Add Pin</button></div>
-      <div class="controlGroup pinSliderGroup">
-        <label for="pinSize">Size</label>
-        <input id="pinSize" type="range" min="8" max="64" value="16" oninput="previewPinSettings()">
-        <span id="pinSizeLabel" class="pinValueBadge">16</span>
-        <label for="printPinScale">Print Scale</label>
-        <input id="printPinScale" type="range" min="40" max="100" value="67" oninput="savePrintSettings()">
-        <span id="printPinScaleLabel" class="pinValueBadge">67%</span>
-        <label for="printPinSpread">Print Spacing</label>
-        <input id="printPinSpread" type="range" min="100" max="155" value="120" oninput="savePrintSettings()">
-        <span id="printPinSpreadLabel" class="pinValueBadge">120%</span>
-        <button class="btnTiny" onclick="bakePrintSpacingIntoPins()">Make Editor Match Print 120%→100%</button>
+    <div class="toolbar dashboardToolbar">
+      <div class="primaryBar" aria-label="Main map actions">
+        <button id="panBtn" class="active" onclick="setMode('pan')">✋ Move Map</button>
+        <button id="pinBtn" onclick="setMode('pin')">📍 Add/Edit Pins</button>
+        <span class="toolbarDivider"></span>
+        <button onclick="zoomOut()">− Zoom</button>
+        <button onclick="zoomIn()">+ Zoom</button>
+        <button onclick="fitMap()">Fit</button>
+        <button onclick="centerMap()">Center</button>
+        <span id="zoomLabel" class="zoomBadge">100%</span>
+        <span class="toolbarDivider"></span>
+        <button onclick="printTarget('map')">Print / Save Map PDF</button>
+        <button onclick="downloadProjectJSON()">Download Full Project JSON</button>
+        <button onclick="downloadNativePNG()">Quick PNG</button>
       </div>
-      <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button><button id="undoPinBtn" onclick="undoPinChange()" disabled>↶ Undo Pin Move/Edit</button><button id="redoPinBtn" onclick="redoPinChange()" disabled>↷ Redo</button></div><div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div><div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button><button onclick="restoreCategoryColors()">Restore Category Colors</button></div>
-      <div class="controlGroup decorGroup">
-        <span>Decor</span>
-        <button class="btnTiny" onclick="toggleGreenTint()">Greens</button>
-        <button class="btnTiny" onclick="toggleTrees()">Show/Hide Decor</button>
-        <button class="btnTiny" onclick="addTree('single')">Add Tree</button>
-        <button class="btnTiny" onclick="addTree('cluster')">Add Cluster</button>
-        <button class="btnTiny" onclick="addCompass()">Add Compass</button>
-        <button class="btnTiny" onclick="addTree('nearby')">Add Nearby Box</button>
-        <label>Element Size</label><input id="treeSize" type="range" min="10" max="320" value="28" oninput="previewTreeSettings()"><span id="treeSizeLabel" class="pinValueBadge">28</span>
-        <button class="btnTiny" onclick="applyTreeSize()">Apply Size</button>
-        <button class="btnTiny" onclick="deleteSelectedTree()">Delete Selected</button>
-        <button class="btnTiny" onclick="resetDecorToNearbyOnly()">Clear Decor</button>
-        <button class="btnTiny" onclick="exportDecorJSON()">Export Decor</button>
-        <button class="btnTiny" onclick="importDecorJSON()">Import Decor</button>
-        <input id="decorFileInput" type="file" accept=".json,application/json" style="display:none" onchange="handleDecorImport(event)">
+
+      <div class="dashboardNav" aria-label="Dashboard sections">
+        <button id="dashBtnPins" class="active" onclick="showMapDashboard('pins')">Pins</button>
+        <button id="dashBtnPrint" onclick="showMapDashboard('print')">Print & Export</button>
+        <button id="dashBtnDecor" onclick="showMapDashboard('decor')">Decor</button>
+        <button id="dashBtnQR" onclick="showMapDashboard('qr')">QR Codes</button>
+        <button id="dashBtnData" onclick="showMapDashboard('data')">Data / Backup</button>
       </div>
-      <div class="controlGroup qrControlGroup">
-        <span>QR Codes</span>
-        <label><input id="qrShow" type="checkbox" checked onchange="updateQrControls()"> Show</label>
-        <label for="qrSize">QR Size</label>
-        <input id="qrSize" type="range" min="48" max="120" value="72" oninput="updateQrControls()">
-        <span id="qrSizeLabel" class="pinValueBadge">72</span>
-        <label for="qrTheme">QR Style</label>
-        <select id="qrTheme" onchange="updateQrControls()">
-          <option value="white">Classic White</option>
-          <option value="gold">Warm Gold</option>
-          <option value="navy">Navy Accent</option>
-          <option value="social" selected>Social Colors</option>
-        </select>
-        <button class="btnTiny" onclick="resetQrCodes()">Reset QR Layout</button><button class="btnTiny" onclick="toggleQrLinkPanel()">Edit QR Links</button>
+
+      <div class="dashboardPanels">
+        <div id="dashPanelPins" class="dashPanel active">
+          <div class="dashPanelTitle"><strong>Pin editing</strong><span>Move pins, change colors, arrows, outlines, and leader lines.</span></div>
+          <div class="controlGroup"><label for="pinNumber">#</label><input id="pinNumber" type="number" min="1" max="99" value="1"><button onclick="addPinAtCenter()">Add Pin</button></div>
+          <div class="controlGroup pinSliderGroup">
+            <label for="pinSize">Size</label>
+            <input id="pinSize" type="range" min="8" max="64" value="16" oninput="previewPinSettings()">
+            <span id="pinSizeLabel" class="pinValueBadge">16</span>
+            <label for="printPinScale">Print Scale</label>
+            <input id="printPinScale" type="range" min="40" max="100" value="67" oninput="savePrintSettings()">
+            <span id="printPinScaleLabel" class="pinValueBadge">67%</span>
+            <label for="printPinSpread">Print Spacing</label>
+            <input id="printPinSpread" type="range" min="100" max="155" value="120" oninput="savePrintSettings()">
+            <span id="printPinSpreadLabel" class="pinValueBadge">120%</span>
+            <button class="btnTiny" onclick="bakePrintSpacingIntoPins()">Make Editor Match Print 120%→100%</button>
+          </div>
+          <div class="controlGroup"><label for="pinColor">Color</label><input id="pinColor" type="color" value="#062f45" oninput="previewPinSettings()"><label for="pinDirection">Arrow</label><select id="pinDirection" onchange="previewPinSettings()"><option value="down">Down</option><option value="up">Up</option><option value="left">Left</option><option value="right">Right</option></select><label for="pinBorder">Outline</label><input id="pinBorder" type="range" min="0" max="3" step="0.5" value="1" oninput="previewPinSettings()"><span id="pinBorderLabel" class="pinValueBadge">1</span><button onclick="applyStyleToSelected()">Apply Selected</button><button onclick="applyStyleToAll()">Apply All</button><button id="undoPinBtn" onclick="undoPinChange()" disabled>↶ Undo Pin Move/Edit</button><button id="redoPinBtn" onclick="redoPinChange()" disabled>↷ Redo</button></div>
+          <div class="controlGroup leaderGroup"><label><input id="leaderEnabled" type="checkbox" onchange="previewLeaderControls()"> Leader</label><label for="leaderWidth">Line</label><input id="leaderWidth" type="range" min="0.5" max="4" step="0.5" value="1.5" oninput="previewLeaderControls()"><span id="leaderWidthLabel" class="pinValueBadge">1.5</span><button onclick="applyLeaderToSelected()">Apply Leader</button><button onclick="deleteLeaderFromSelected()">Delete Leader</button><button onclick="resetLeaderAnchorToPin()">Anchor to Pin</button></div>
+          <div class="controlGroup pinPresetGroup"><span>Pin Presets</span><button class="swatchBtn" style="--sw:#c86337" onclick="setPresetColor('#c86337','Dining & Cafés')"><span class="swatchDot"></span>Dining</button><button class="swatchBtn" style="--sw:#2d7b86" onclick="setPresetColor('#2d7b86','Retail & Specialty')"><span class="swatchDot"></span>Retail</button><button class="swatchBtn" style="--sw:#8a4f7f" onclick="setPresetColor('#8a4f7f','Wellness, Beauty & Fitness')"><span class="swatchDot"></span>Wellness</button><button class="swatchBtn" style="--sw:#4f6fa5" onclick="setPresetColor('#4f6fa5','Professional & Financial')"><span class="swatchDot"></span>Professional</button><button class="swatchBtn" style="--sw:#ca932b" onclick="setPresetColor('#ca932b','Services & Education')"><span class="swatchDot"></span>Services</button><button onclick="restoreCategoryColors()">Restore Category Colors</button></div>
+        </div>
+
+        <div id="dashPanelPrint" class="dashPanel">
+          <div class="dashPanelTitle"><strong>Print and export</strong><span>Use these when you are ready to proof, print, or export image files.</span></div>
+          <button onclick="printTarget('map')">Print / Save Map PDF</button>
+          <button onclick="downloadNativePNG()">Quick PNG</button>
+          <button onclick="downloadOverlayPNG()">Pin Overlay PNG</button>
+          <button onclick="downloadSVG()">Download Map SVG</button>
+          <button onclick="showTab('print')">Print Production Screen</button>
+          <div class="controlGroup"><label for="exportScale">Overlay Quality</label><select id="exportScale"><option value="2">2x</option><option value="3" selected>3x</option><option value="4">4x</option></select></div>
+        </div>
+
+        <div id="dashPanelDecor" class="dashPanel">
+          <div class="dashPanelTitle"><strong>Decor and map extras</strong><span>Add, resize, show/hide, import, or export decorative map elements.</span></div>
+          <div class="controlGroup decorGroup">
+            <span>Decor</span>
+            <button class="btnTiny" onclick="toggleGreenTint()">Greens</button>
+            <button class="btnTiny" onclick="toggleTrees()">Show/Hide Decor</button>
+            <button class="btnTiny" onclick="addTree('single')">Add Tree</button>
+            <button class="btnTiny" onclick="addTree('cluster')">Add Cluster</button>
+            <button class="btnTiny" onclick="addCompass()">Add Compass</button>
+            <button class="btnTiny" onclick="addTree('nearby')">Add Nearby Box</button>
+            <label>Element Size</label><input id="treeSize" type="range" min="10" max="320" value="28" oninput="previewTreeSettings()"><span id="treeSizeLabel" class="pinValueBadge">28</span>
+            <button class="btnTiny" onclick="applyTreeSize()">Apply Size</button>
+            <button class="btnTiny" onclick="deleteSelectedTree()">Delete Selected</button>
+            <button class="btnTiny" onclick="resetDecorToNearbyOnly()">Clear Decor</button>
+            <button class="btnTiny" onclick="exportDecorJSON()">Export Decor</button>
+            <button class="btnTiny" onclick="importDecorJSON()">Import Decor</button>
+            <input id="decorFileInput" type="file" accept=".json,application/json" style="display:none" onchange="handleDecorImport(event)">
+          </div>
+        </div>
+
+        <div id="dashPanelQR" class="dashPanel">
+          <div class="dashPanelTitle"><strong>QR codes</strong><span>Show, resize, recolor, reposition, and edit QR links before printing.</span></div>
+          <div class="controlGroup qrControlGroup">
+            <span>QR Codes</span>
+            <label><input id="qrShow" type="checkbox" checked onchange="updateQrControls()"> Show</label>
+            <label for="qrSize">QR Size</label>
+            <input id="qrSize" type="range" min="48" max="120" value="72" oninput="updateQrControls()">
+            <span id="qrSizeLabel" class="pinValueBadge">72</span>
+            <label for="qrTheme">QR Style</label>
+            <select id="qrTheme" onchange="updateQrControls()">
+              <option value="white">Classic White</option>
+              <option value="gold">Warm Gold</option>
+              <option value="navy">Navy Accent</option>
+              <option value="social" selected>Social Colors</option>
+            </select>
+            <button class="btnTiny" onclick="resetQrCodes()">Reset QR Layout</button>
+            <button class="btnTiny" onclick="toggleQrLinkPanel()">Edit QR Links</button>
+          </div>
+        </div>
+
+        <div id="dashPanelData" class="dashPanel">
+          <div class="dashPanelTitle"><strong>Data and backup</strong><span>Save your full project, import backups, or export data for the online map.</span></div>
+          <button onclick="togglePins()">Show/Hide Pins</button>
+          <button onclick="exportPins()">Export Pins</button>
+          <button onclick="downloadProjectJSON()">Download Full Project JSON</button>
+          <button onclick="triggerProjectJSONImport()">Import Full Project JSON</button>
+          <input id="projectFileInput" type="file" accept=".json,application/json" style="display:none" onchange="handleProjectJSONFile(event)">
+          <button onclick="downloadDigitalMapJSON()">Export Digital Map JSON</button>
+          <button onclick="togglePinPanel()">Import/Export Pin Text Box</button>
+        </div>
       </div>
-      <button onclick="togglePins()">Show/Hide Pins</button><button onclick="exportPins()">Export Pins</button><button onclick="downloadProjectJSON()">Download Full Project JSON</button><button onclick="triggerProjectJSONImport()">Import Full Project JSON</button><input id="projectFileInput" type="file" accept=".json,application/json" style="display:none" onchange="handleProjectJSONFile(event)"><button onclick="downloadDigitalMapJSON()">Export Digital Map JSON</button><button onclick="downloadNativePNG()">Quick PNG</button><button onclick="downloadOverlayPNG()">Pin Overlay PNG</button><button onclick="downloadSVG()">Download Map SVG</button><button onclick="printTarget('map')">Print / Save Map PDF</button><button onclick="togglePinPanel()">Import/Export</button>
-      <div class="controlGroup"><label for="exportScale">Overlay Quality</label><select id="exportScale"><option value="2">2x</option><option value="3" selected>3x</option><option value="4">4x</option></select></div>
     </div>
     <div id="qrLinkPanel" class="qrLinkPanel">
       <strong>QR Links</strong>
@@ -1536,6 +1627,20 @@ function showTab(which) {
   if (which === 'preview') { document.getElementById('directoryPreviewTab').classList.add('active'); document.getElementById('tabPreview').classList.add('active'); syncDirectoryTitleScaleControls(); renderPreview(); }
   if (which === 'print') { document.getElementById('printTab').classList.add('active'); document.getElementById('tabPrint').classList.add('active'); renderPrintPreviews(); }
 }
+
+function showMapDashboard(which) {
+  const sections = ['pins','print','decor','qr','data'];
+  if (!sections.includes(which)) which = 'pins';
+  sections.forEach(section => {
+    const panel = document.getElementById('dashPanel' + section.charAt(0).toUpperCase() + section.slice(1));
+    const btn = document.getElementById('dashBtn' + section.charAt(0).toUpperCase() + section.slice(1));
+    if (panel) panel.classList.toggle('active', section === which);
+    if (btn) btn.classList.toggle('active', section === which);
+  });
+  const labels = { pins:'Pins dashboard', print:'Print/export dashboard', decor:'Decor dashboard', qr:'QR code dashboard', data:'Data/backup dashboard' };
+  if (typeof statusEl !== 'undefined' && statusEl) statusEl.textContent = labels[which] || 'Dashboard updated.';
+}
+
 function pad(n) { return String(n).padStart(2,'0'); }
 function escapeHTML(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 function businessByNumber(n) { return businesses.find(b => Number(b.number) === Number(n)); }
@@ -1700,7 +1805,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v141 Full Project Includes Editable QR Links + v140 Address Box Drag + Compass Fix',
+    version:'Print Map Editor v142 Dashboard Controls + Editable QR Links + v140 Address Box Drag + Compass Fix',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
