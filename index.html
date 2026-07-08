@@ -676,7 +676,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v142</h1>
+  <h1>Print Map Editor v143</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -707,7 +707,7 @@
         <button id="dashBtnPins" class="active" onclick="showMapDashboard('pins')">Pins</button>
         <button id="dashBtnPrint" onclick="showMapDashboard('print')">Print & Export</button>
         <button id="dashBtnDecor" onclick="showMapDashboard('decor')">Decor</button>
-        <button id="dashBtnQR" onclick="showMapDashboard('qr')">QR Codes</button>
+        <button id="dashBtnQr" onclick="showMapDashboard('qr')">QR Codes</button>
         <button id="dashBtnData" onclick="showMapDashboard('data')">Data / Backup</button>
       </div>
 
@@ -762,8 +762,8 @@
           </div>
         </div>
 
-        <div id="dashPanelQR" class="dashPanel">
-          <div class="dashPanelTitle"><strong>QR codes</strong><span>Show, resize, recolor, reposition, and edit QR links before printing.</span></div>
+        <div id="dashPanelQr" class="dashPanel">
+          <div class="dashPanelTitle"><strong>QR codes</strong><span>Show, resize, recolor, reposition, and use Edit QR Links to update scan URLs.</span></div>
           <div class="controlGroup qrControlGroup">
             <span>QR Codes</span>
             <label><input id="qrShow" type="checkbox" checked onchange="updateQrControls()"> Show</label>
@@ -1630,10 +1630,12 @@ function showTab(which) {
 
 function showMapDashboard(which) {
   const sections = ['pins','print','decor','qr','data'];
+  const idNames = { pins:'Pins', print:'Print', decor:'Decor', qr:'Qr', data:'Data' };
   if (!sections.includes(which)) which = 'pins';
   sections.forEach(section => {
-    const panel = document.getElementById('dashPanel' + section.charAt(0).toUpperCase() + section.slice(1));
-    const btn = document.getElementById('dashBtn' + section.charAt(0).toUpperCase() + section.slice(1));
+    const suffix = idNames[section] || (section.charAt(0).toUpperCase() + section.slice(1));
+    const panel = document.getElementById('dashPanel' + suffix);
+    const btn = document.getElementById('dashBtn' + suffix);
     if (panel) panel.classList.toggle('active', section === which);
     if (btn) btn.classList.toggle('active', section === which);
   });
@@ -1805,7 +1807,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v142 Dashboard Controls + Editable QR Links + v140 Address Box Drag + Compass Fix',
+    version:'Print Map Editor v143 Dashboard QR Fix + Editable QR Links + v140 Address Box Drag + Compass Fix',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
