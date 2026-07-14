@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v142</title>
-<meta name="application-name" content="Print Map Editor v142">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v142">
+<title>Print Map Editor v144</title>
+<meta name="application-name" content="Print Map Editor v144">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v144">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -676,7 +676,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v143</h1>
+  <h1>Print Map Editor v144</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -751,7 +751,9 @@
             <button class="btnTiny" onclick="addTree('single')">Add Tree</button>
             <button class="btnTiny" onclick="addTree('cluster')">Add Cluster</button>
             <button class="btnTiny" onclick="addCompass()">Add Compass</button>
+            <button class="btnTiny" onclick="addTree('parking')">Add Parking Entrance</button>
             <button class="btnTiny" onclick="addTree('nearby')">Add Nearby Box</button>
+            <label for="parkingArrowPosition">Parking Arrow</label><select id="parkingArrowPosition" onchange="applyParkingArrowPosition()"><option value="top">Top</option><option value="right" selected>Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select>
             <label>Element Size</label><input id="treeSize" type="range" min="10" max="320" value="28" oninput="previewTreeSettings()"><span id="treeSizeLabel" class="pinValueBadge">28</span>
             <button class="btnTiny" onclick="applyTreeSize()">Apply Size</button>
             <button class="btnTiny" onclick="deleteSelectedTree()">Delete Selected</button>
@@ -1807,7 +1809,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v143 Dashboard QR Fix + Editable QR Links + v140 Address Box Drag + Compass Fix',
+    version:'Print Map Editor v144 Parking Entrance Markers + Dashboard QR Fix + Editable QR Links',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
@@ -1852,6 +1854,7 @@ function decorItemsForDigitalMap() {
     size:Number(t.size || (t.type === 'nearby' ? 210 : (t.type === 'compass' ? 42 : (t.type === 'cluster' ? 34 : 28)))),
     rotation:Number(t.rotation || t.rotate || 0),
     opacity:Number(t.opacity || 1),
+    arrowPosition:t.arrowPosition || 'right',
     text:t.text || t.label || '',
     src:t.src || ''
   }));
@@ -1959,6 +1962,7 @@ function importFullProject() {
         size:Number(item.size || (item.type === 'nearby' ? 210 : (item.type === 'compass' ? 42 : (item.type === 'cluster' ? 34 : 28)))),
         rotation:Number(item.rotation || 0),
         opacity:Number(item.opacity || 1),
+        arrowPosition:item.arrowPosition || item.arrow || 'right',
         text:item.text || ''
       })).filter(t => t.type !== 'bench');
       selectedTreeId = null;
@@ -2335,7 +2339,13 @@ function ensureNearbyInsetPresent() {
   // Nearby box is now manual only. Use Add Nearby Box when you want it.
 }
 
-function treeSVG(type='single') {
+function parkingEntranceSVG(position='right') {
+  const pos=['top','right','bottom','left'].includes(position)?position:'right';
+  const arrows={top:'<path d="M50 24 L50 8 M42 16 L50 8 L58 16"/>',right:'<path d="M76 50 L92 50 M84 42 L92 50 L84 58"/>',bottom:'<path d="M50 76 L50 92 M42 84 L50 92 L58 84"/>',left:'<path d="M24 50 L8 50 M16 42 L8 50 L16 58"/>'};
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="27" y="27" width="46" height="46" rx="8" fill="#1769aa" stroke="#fff" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="38" font-weight="800" fill="#fff">P</text><g fill="none" stroke="#1769aa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">${arrows[pos]}</g><g fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${arrows[pos]}</g></svg>`;
+}
+
+function treeSVG(type='single', arrowPosition='right') {
   if (type === 'cluster') {
     return `<svg viewBox="0 0 90 60" aria-hidden="true">
       <g opacity=".95">
@@ -2380,6 +2390,9 @@ function treeSVG(type='single') {
         <text x="14" y="74" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#12384f" opacity=".82">W</text>
       </g>
     </svg>`;
+  }
+  if (type === 'parking') {
+    return parkingEntranceSVG(arrowPosition);
   }
   if (type === 'nearby') {
     return `<svg viewBox="0 0 180 230" aria-hidden="true">
@@ -2440,13 +2453,13 @@ function renderTrees() {
   layer.innerHTML = '';
   treeStamps.forEach(t => {
     const el = document.createElement('div');
-    const typeClass = t.type === 'cluster' ? 'treeCluster' : (t.type === 'compass' ? 'treeCompass' : (t.type === 'nearby' ? 'treeInsetBox' : ''));
+    const typeClass = t.type === 'cluster' ? 'treeCluster' : (t.type === 'compass' ? 'treeCompass' : (t.type === 'nearby' ? 'treeInsetBox' : (t.type === 'parking' ? 'treeParking' : '')));
     el.className = `treeStamp ${typeClass}${t.id === selectedTreeId ? ' selected' : ''}`;
     el.dataset.id = t.id;
     el.style.left = `${t.x}px`;
     el.style.top = `${t.y}px`;
     el.style.setProperty('--tree-size', `${t.size || 28}px`);
-    el.innerHTML = treeSVG(t.type);
+    el.innerHTML = treeSVG(t.type, t.arrowPosition || 'right');
     el.addEventListener('pointerdown', startTreeDrag);
     el.addEventListener('click', e => { e.stopPropagation(); selectTree(t.id); });
     layer.appendChild(el);
@@ -2514,15 +2527,17 @@ function selectTree(id) {
   const t = treeStamps.find(x => x.id === id);
   if (t) {
     const input = document.getElementById('treeSize');
-    const fallbackSize = t.type === 'nearby' ? 210 : (t.type === 'cluster' ? 34 : (t.type === 'compass' ? 42 : 28));
+    const fallbackSize = t.type === 'nearby' ? 210 : (t.type === 'cluster' ? 34 : (t.type === 'compass' ? 42 : (t.type === 'parking' ? 54 : 28)));
     if (input) input.value = t.size || fallbackSize;
+    const arrow=document.getElementById('parkingArrowPosition');
+    if (arrow && t.type==='parking') arrow.value=t.arrowPosition||'right';
   }
   renderTrees();
 }
 
 function addTree(type='single') {
   if (type === 'bench') type = 'single';
-  const validTypes = new Set(['single', 'cluster', 'compass', 'nearby']);
+  const validTypes = new Set(['single', 'cluster', 'compass', 'parking', 'nearby']);
   if (!validTypes.has(type)) type = 'single';
 
   const r = viewport.getBoundingClientRect();
@@ -2544,13 +2559,13 @@ function addTree(type='single') {
   }
 
   const sizeInput = document.getElementById('treeSize');
-  const defaultSize = type==='nearby' ? 210 : (type==='cluster' ? 34 : (type==='compass' ? 42 : 28));
+  const defaultSize = type==='nearby' ? 210 : (type==='cluster' ? 34 : (type==='compass' ? 42 : (type==='parking' ? 54 : 28)));
   // The compass should always start at a normal usable size, even if the slider was left at
   // the large address-box size. It can still be resized after selecting it.
-  const useSize = (type==='nearby' || type==='compass') ? defaultSize : Number(sizeInput?.value || defaultSize);
+  const useSize = (type==='nearby' || type==='compass' || type==='parking') ? defaultSize : Number(sizeInput?.value || defaultSize);
   if (type === 'compass' && sizeInput) sizeInput.value = defaultSize;
   decorSettings.trees = true;
-  const t = {id:'tree_'+Date.now(), type, x:Math.round(p.x), y:Math.round(p.y), size:useSize};
+  const t = {id:'tree_'+Date.now(), type, x:Math.round(p.x), y:Math.round(p.y), size:useSize, arrowPosition:type==='parking'?(document.getElementById('parkingArrowPosition')?.value||'right'):undefined};
   treeStamps.push(t);
   selectedTreeId = t.id;
   saveDecor();
@@ -2558,11 +2573,20 @@ function addTree(type='single') {
   renderPrintPreviews();
   statusEl.textContent = type === 'nearby'
     ? 'Nearby Location box added inside the print-preview crop. Drag/resize as needed.'
-    : (type === 'compass' ? 'Compass added inside the print-map area. Drag/resize as needed.' : 'Decor item added.');
+    : (type === 'compass' ? 'Compass added inside the print-map area. Drag/resize as needed.' : (type === 'parking' ? 'Parking entrance added. Drag it to the driveway and choose the arrow side.' : 'Decor item added.'));
 }
 
 function addCompass() {
   addTree('compass');
+}
+
+function applyParkingArrowPosition() {
+  if (!selectedTreeId) return;
+  const t=treeStamps.find(x=>x.id===selectedTreeId);
+  if (!t || t.type!=='parking') return;
+  t.arrowPosition=document.getElementById('parkingArrowPosition')?.value||'right';
+  saveDecor(); renderTrees(); renderPrintPreviews();
+  statusEl.textContent='Parking entrance arrow position saved.';
 }
 
 function applyTreeSize() {
@@ -2592,7 +2616,7 @@ function resetDecorToNearbyOnly() {
   saveDecor();
   renderDecorations();
   renderPrintPreviews();
-  statusEl.textContent = 'Decor cleared and saved. Use Add Nearby Box, Add Tree, Add Cluster, or Add Compass when needed.';
+  statusEl.textContent = 'Decor cleared and saved. Use Add Nearby Box, Add Tree, Add Cluster, Add Compass, or Add Parking Entrance when needed.';
 }
 
 function exportDecorJSON() {
@@ -2651,7 +2675,7 @@ function startTreeDrag(e) {
   // Re-rendering before pointer capture made the newly added extra address box hard/impossible to move.
   selectedTreeId = id;
   const input = document.getElementById('treeSize');
-  const fallbackSize = t.type === 'nearby' ? 210 : (t.type === 'cluster' ? 34 : (t.type === 'compass' ? 42 : 28));
+  const fallbackSize = t.type === 'nearby' ? 210 : (t.type === 'cluster' ? 34 : (t.type === 'compass' ? 42 : (t.type === 'parking' ? 54 : 28)));
   if (input) input.value = t.size || fallbackSize;
   previewTreeSettings();
   document.querySelectorAll('.treeStamp.selected, .treeStamp.dragging').forEach(node => {
@@ -2710,7 +2734,7 @@ function decorPrintMarkup(cropX, cropY, cropW, cropH) {
   const printTrees = decorSettings.trees ? treeStamps
     .filter(t => {
       const s = t.size || 28;
-      const halfW = t.type === 'nearby' ? s * .39 : (t.type === 'cluster' ? s * .72 : (t.type === 'compass' ? s * .63 : s * .50));
+      const halfW = t.type === 'nearby' ? s * .39 : (t.type === 'cluster' ? s * .72 : (t.type === 'compass' ? s * .63 : (t.type === 'parking' ? s * .80 : s * .50)));
       const halfH = t.type === 'nearby' ? s * .50 : s * .50;
       return (t.x + halfW) >= cropX && (t.x - halfW) <= cropX + cropW && (t.y + halfH) >= cropY && (t.y - halfH) <= cropY + cropH;
     })
@@ -2718,8 +2742,8 @@ function decorPrintMarkup(cropX, cropY, cropW, cropH) {
       const left = ((t.x - cropX) / cropW * 100).toFixed(4);
       const top = ((t.y - cropY) / cropH * 100).toFixed(4);
       const size = Math.max(8, (t.size || 28) * .70);
-      const typeClass = t.type === 'cluster' ? 'treeCluster' : (t.type === 'compass' ? 'treeCompass' : (t.type === 'nearby' ? 'treeInsetBox' : ''));
-      return `<div class="printTreeStamp ${typeClass}" style="left:${left}%;top:${top}%;--tree-size:${size}px;">${treeSVG(t.type)}</div>`;
+      const typeClass = t.type === 'cluster' ? 'treeCluster' : (t.type === 'compass' ? 'treeCompass' : (t.type === 'nearby' ? 'treeInsetBox' : (t.type === 'parking' ? 'treeParking' : '')));
+      return `<div class="printTreeStamp ${typeClass}" style="left:${left}%;top:${top}%;--tree-size:${size}px;">${treeSVG(t.type, t.arrowPosition || 'right')}</div>`;
     }).join('') : '';
 
   return `<div class="printDecorLayer">
