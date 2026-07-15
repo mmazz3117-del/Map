@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v144</title>
-<meta name="application-name" content="Print Map Editor v144">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v144">
+<title>Print Map Editor v145</title>
+<meta name="application-name" content="Print Map Editor v145">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v145">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -676,7 +676,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v144</h1>
+  <h1>Print Map Editor v145</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -779,6 +779,7 @@
               <option value="navy">Navy Accent</option>
               <option value="social" selected>Social Colors</option>
             </select>
+            <button class="btnTiny" onclick="alignAndSpaceQrCodes()">Align &amp; Space QR Cards</button>
             <button class="btnTiny" onclick="resetQrCodes()">Reset QR Layout</button>
             <button class="btnTiny" onclick="toggleQrLinkPanel()">Edit QR Links</button>
           </div>
@@ -1306,10 +1307,11 @@ function normalizeQrSettings(data) {
       if (def.id === 'digital' && (!url || url === 'https://waylandsquareri.com/' || url === 'http://waylandsquareri.com/' || url === 'https://www.waylandsquareri.com/')) {
         url = def.url;
       }
-      const isDefaultUrl = normalizeQrUrl(url) === normalizeQrUrl(def.url);
       return Object.assign({}, def, {
         url,
-        qrData: isDefaultUrl ? def.qrData : (saved.qrData || qrDataUrlForCustomUrl(url)),
+        // v145: all three QR cards use the same generator and internal margin.
+        // Positions, size, theme, labels, and links remain unchanged.
+        qrData: qrDataUrlForCustomUrl(url) || saved.qrData || def.qrData,
         x: Math.max(0, Math.min(MAP_W - base.size, Number(saved.x ?? def.x))),
         y: Math.max(0, Math.min(MAP_H - base.size, Number(saved.y ?? def.y)))
       });
@@ -1326,13 +1328,11 @@ function defaultQrItem(id) {
 function qrDataUrlForCustomUrl(url) {
   const clean = String(url || '').trim();
   if (!clean) return '';
-  // Used only for custom URLs. Default Wayland Square QR links remain fully embedded as data images.
+  // v145: one shared QR image style for Digital Map, Instagram, and Facebook.
   return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=' + encodeURIComponent(clean);
 }
 function qrDataForUrl(id, url) {
-  const def = defaultQrItem(id);
   const clean = String(url || '').trim();
-  if (def && normalizeQrUrl(clean) === normalizeQrUrl(def.url)) return def.qrData;
   return qrDataUrlForCustomUrl(clean);
 }
 function loadQrSettings() {
@@ -1406,6 +1406,30 @@ function updateQrControls() {
   renderPrintPreviews();
   statusEl.textContent = 'QR settings saved. Drag any QR code to reposition them. Color accents stay outside the code for scan safety.';
 }
+
+function alignAndSpaceQrCodes() {
+  const items = Array.isArray(qrSettings.items) ? qrSettings.items.filter(Boolean) : [];
+  if (items.length < 2) {
+    statusEl.textContent = 'At least two QR cards are required to align and space.';
+    return;
+  }
+  const sorted = [...items].sort((a,b) => Number(a.x || 0) - Number(b.x || 0));
+  const leftX = Number(sorted[0].x || 0);
+  const rightX = Number(sorted[sorted.length - 1].x || 0);
+  const averageY = Math.round(sorted.reduce((sum,item) => sum + Number(item.y || 0), 0) / sorted.length);
+
+  sorted.forEach((item,index) => {
+    const ratio = sorted.length === 1 ? 0 : index / (sorted.length - 1);
+    item.x = Math.round(leftX + ((rightX - leftX) * ratio));
+    item.y = averageY;
+  });
+
+  saveQrSettings();
+  renderQrLayer();
+  renderPrintPreviews();
+  statusEl.textContent = 'QR cards aligned on one level and spaced evenly. Only QR positions were changed.';
+}
+
 function resetQrCodes() {
   qrSettings = cloneDefaultQrSettings();
   syncQrControls();
@@ -1809,7 +1833,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v144 Parking Entrance Markers + Dashboard QR Fix + Editable QR Links',
+    version:'Print Map Editor v145 Unified QR Style + Align & Space',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
