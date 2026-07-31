@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v145</title>
-<meta name="application-name" content="Print Map Editor v145">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v145">
+<title>Print Map Editor v146</title>
+<meta name="application-name" content="Print Map Editor v146">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v146">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -443,17 +443,27 @@
     box-shadow:none !important;
   }
   .printBleedClone.postcard::after { display:none !important; }
-  .printMapCreamBleedFill { position:absolute; inset:0; background:#fbf8ef; }
-  .printDirectoryBleedFill {
-    position:absolute; inset:0;
-    background:
-      linear-gradient(to right,
-        #fbf8ef 0 var(--trim-left,.125in),
-        transparent var(--trim-left,.125in) calc(100% - var(--trim-left,.125in)),
-        #fbf8ef calc(100% - var(--trim-left,.125in)) 100%),
-      linear-gradient(to bottom,
-        #fbf8ef 0 calc(var(--trim-top,.125in) + .78in),
-        var(--paper) calc(var(--trim-top,.125in) + .78in) 100%);
+  /* v146: bleed-background-only correction.
+     The directory bleed is pure white. The map bleed extends the underlying
+     basemap horizontally using an expanded source crop. The centered 6 x 9
+     trim artwork remains a separate, unchanged layer above this background. */
+  .printDirectoryBleedFill { position:absolute; inset:0; background:#ffffff; }
+  .printMapBleedFill { position:absolute; inset:0; overflow:hidden; background:#fbf8ef; }
+  .printMapBleedBody {
+    position:absolute;
+    left:0;
+    top:calc(var(--bleed-trim-top,.125in) + 1.30in);
+    width:100%;
+    height:7.20in;
+    overflow:hidden;
+    background:var(--paper);
+  }
+  .printMapBleedFooterTexture {
+    left:0;
+    right:0;
+    bottom:0;
+    height:calc(.50in + var(--bleed-trim-top,.125in));
+    z-index:1;
   }
   .printTrim {
     position:absolute;
@@ -676,7 +686,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v145</h1>
+  <h1>Print Map Editor v146</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -896,7 +906,7 @@
   </div>
   <div class="printIntro">
     <h2>Print Production Preview</h2>
-    <p><strong>Staples preset:</strong> choose <strong>Staples upload — 6.25 × 9.25 full bleed</strong>. The cream background extends through the required 0.125-inch bleed on all four sides. The exact 6 × 9 map artwork, pins, leaders, and decor remain untouched inside the trim area, and the outer border is off by default. The green preview guide marks the 0.25-inch safe area. In the print dialog choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, turn off browser headers/footers, and use the selected page size. The guide lines are preview-only and will not print.</p><p><strong>Crop marks:</strong> marks cannot sit outside a 6.25 × 9.25 page without increasing the PDF dimensions. Use the separate <strong>Full bleed + crop marks — 6.5 × 9.5 proof</strong> preset only when the print shop explicitly asks for marks outside the bleed. For the normal Staples upload, use the 6.25 × 9.25 preset.</p>
+    <p><strong>Staples preset:</strong> choose <strong>Staples upload — 6.25 × 9.25 full bleed</strong>. The directory bleed is pure white, and the map basemap extends through the left and right bleed without moving the exact 6 × 9 trim artwork, pins, leaders, decor, street labels, QR cards, boxes, title, logo, or footer. The outer border is off by default. The green preview guide marks the 0.25-inch safe area. In the print dialog choose <strong>Save as PDF</strong>, scale <strong>100%</strong>, turn off browser headers/footers, and use the selected page size. The guide lines are preview-only and will not print.</p><p><strong>Crop marks:</strong> marks cannot sit outside a 6.25 × 9.25 page without increasing the PDF dimensions. Use the separate <strong>Full bleed + crop marks — 6.5 × 9.5 proof</strong> preset only when the print shop explicitly asks for marks outside the bleed. For the normal Staples upload, use the 6.25 × 9.25 preset.</p>
     <p>The directory text, pins, logo, and map title are redrawn as clean HTML/SVG-style elements for better print sharpness, and the old baked-in map title/subtitle is covered. The map background is still the current artwork image, so the final street/building softness depends on that source image. For the sharpest final output, use the Print Production PDF workflow for print and the hosted HTML for online viewing. This version uses the labeled SVG map underlay as the primary source. The map editor remains wide, but the print preview now crops into the central neighborhood area. This version starts with no decorative items by default. The nearby-location box is manual only, and Add Nearby Box now places it inside the print-preview crop so it appears on the print side. The tree, cluster, compass, and nearby-box tools are still available if you add them manually. Decorative items now use a stable save key and can also be exported/imported as JSON. Pins now support custom arrow directions: down, up, left, or right. The print map uses a vector SVG crop, pins include an Outline slider, and this version tests a larger/lighter directory font plus a stronger footer for better home-printer readability. Leader lines include a visible target dot and a white-backed line for contrast. This version also adds a Print Spacing slider and a Delete Leader button so leader lines can be removed without deleting the pin. Leader target dots are now reduced to small round dots in both the editor and print/export output so they fit tight map areas better. The printed directory now displays the Services & Education section as Services. This version rolls back to the v74 layout, keeps the flat print-safe pin style, embeds the clean SVG basemap directly, and restores the built-in Wayland Square logo if the browser saved a blank logo setting. This version also removes the extra gray logo plaque so only the actual logo artwork prints. Print Spacing now saves in this browser and reloads automatically when you reopen the file. This version also switches the page background to clean white and lightly brightens the printed map for a cleaner proof. v88 visually enlarges the Business Directory subtitle without shifting the directory layout. v89 saves both Print Scale and Print Spacing in this browser and reloads them automatically when you reopen the file. v96 adds persistent pin Undo/Redo, a confirmation before Apply All, keyboard shortcuts (Ctrl/Cmd+Z and Ctrl/Cmd+Y), and Restore Category Colors without changing pin positions, sizes, directions, outlines, or leader lines. v97 synchronizes the built-in directory with pins 52–56 and automatically adds those missing businesses to an older saved directory without disturbing entries 1–51. v98 embeds the current 59-business project, adds Directory Auto Fit modes, reserves clear space around the bottom logo, and adds a Directory Logo Raise control without moving the map-side logo. v99 removes the directory instruction line to free vertical space and adds view-only editor sorting by map number, business name, or address without changing the printed directory, numbering, or saved business order. v100 replaces the coarse directory-fit choices with exact percentage sizing. Auto Fit now searches in 1% increments for the largest size that fits, and moving the Directory Size slider automatically switches to manual control. v101 restores the editor table and view-only sorting functions that were accidentally omitted in v100. v102 removes the directory-side logo so branding stays on the map side only and no longer overlaps the Services section. v103 restores the view-only Business Name / Address sorting in the directory editor, removes the directory footer band, and replaces the large two-line directory header with a more compact single-line gold title: Wayland Business Directory. v104 adds a Directory Title Size percentage slider so you can make the directory title larger or smaller without affecting the underlying business data or view-only sort tools. v105 adds the same live Title Size slider directly to the directory preview toolbar so you can watch the title change while adjusting it. v106 adds a Download Full Project JSON button directly to the main Map / Pins toolbar. It downloads the same complete project backup without moving you away from the map screen. v107 adds live Border Thickness and Border Inset controls on the Print Production screen, plus PDF page-size presets for exact 6x9 output, trim allowance, and centered Letter-size cutting sheets. v108 replaces the old allowance-only setup with a true Staples 6.25 × 9.25 full-bleed export: the background extends 0.125 inch beyond the 6 × 9 trim on every side, the border is attached to the trim area, preview-only bleed/trim/safe guides are included, and a separate 6.5 × 9.5 crop-mark proof preset is available when a printer explicitly requests marks outside the bleed. Important directory padding, the map title, and the map footer text are also moved toward the 0.25-inch safe area. v115 makes the directory Auto Fit measure against the actual 0.30-inch print inset and enables it by default, keeping all directory entries inside the green safe area without changing any map-side pin, leader, crop, or spacing data.</p>
   </div>
   <div id="printPages" class="printPages">
@@ -1019,6 +1029,8 @@ function applyPrintLayoutSettings() {
   root.setProperty('--bleed-top', `${bleedTop}in`);
   root.setProperty('--bleed-width', `${preset.bleedWidth}in`);
   root.setProperty('--bleed-height', `${preset.bleedHeight}in`);
+  root.setProperty('--bleed-trim-left', `${(preset.bleedWidth - 6) / 2}in`);
+  root.setProperty('--bleed-trim-top', `${(preset.bleedHeight - 9) / 2}in`);
   root.setProperty('--bleed-scale-x', String(preset.bleedWidth / 6));
   root.setProperty('--bleed-scale-y', String(preset.bleedHeight / 9));
 
@@ -1833,7 +1845,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v145 Unified QR Style + Align & Space',
+    version:'Print Map Editor v146 Staples Bleed Background Fix',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
@@ -2169,14 +2181,14 @@ function cropMarkSVGMarkup(preset) {
   return `<svg class="cropMarkLayer" viewBox="0 0 ${pageW} ${pageH}" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#111" stroke-width="0.65">${markup}</g></svg>`;
 }
 
-function buildPrintSheetMarkup(content, kind) {
+function buildPrintSheetMarkup(content, kind, customBleedContent='') {
   const preset = getActivePrintPreset();
   const trimClass = kind === 'directory'
     ? 'printTrim printDirectoryTrim postcard'
     : 'printTrim printMapTrim';
-  const bleedContent = kind === 'directory'
+  const bleedContent = customBleedContent || (kind === 'directory'
     ? '<div class="printDirectoryBleedFill"></div>'
-    : '<div class="printMapCreamBleedFill"></div>';
+    : '<div class="printMapBleedFill"></div>');
   const bleed = preset.fullBleed
     ? `<div class="printBleedWindow" aria-hidden="true">${bleedContent}</div>`
     : '';
@@ -2262,7 +2274,23 @@ function renderPrintPreviews() {
   const bottomMapFill = `<div class="printMapBottomFill" aria-hidden="true">${vectorMapCrop}</div>`;
 
   const mapContent = `<div class="printMapFrame">${mapTitleHTML('printMapVectorTitle')}<div class="printMapBody"><div class="printMapArt">${vectorMapCrop}${bottomMapFill}<div class="printMapFooterTexture printMapFooterTextureBridge" aria-hidden="true"></div>${decorPrintMarkup(PRINT_CROP_X, PRINT_CROP_Y, PRINT_CROP_W, PRINT_CROP_H)}<div class="printLeaderLayer"><svg viewBox="0 0 ${PRINT_CROP_W} ${PRINT_CROP_H}" preserveAspectRatio="none">${leaderMarkup}</svg></div><div class="printPinLayer">${pinMarkup}</div></div></div><div class="printMapFooterTexture" aria-hidden="true"></div>${printQrMarkup()}<div class="printMapFooter">Thank you for supporting our local businesses. &nbsp;·&nbsp; Shop. Dine. Wellness.</div>${printBrandMarkup()}</div>`;
-  mapPage.innerHTML = buildPrintSheetMarkup(mapContent, 'map');
+
+  // Extend only the underlying basemap into the left/right bleed.
+  // The math keeps the original source coordinate aligned exactly at both
+  // 6 x 9 trim edges; pins, leaders, decor, labels, QR cards, title, and footer
+  // remain solely in the untouched trim layer above it.
+  const activePreset = getActivePrintPreset();
+  const bleedExtraX = PRINT_CROP_W * (((activePreset.bleedWidth - 6) / 2) / 6);
+  const bleedCropX = PRINT_CROP_X - bleedExtraX;
+  const bleedCropW = PRINT_CROP_W + (bleedExtraX * 2);
+  const bleedMapWidthPct = (MAP_W / bleedCropW * 100).toFixed(6);
+  const bleedMapHeightPct = (MAP_H / PRINT_CROP_H * 100).toFixed(6);
+  const bleedMapLeftPct = (-bleedCropX / bleedCropW * 100).toFixed(6);
+  const bleedMapTopPct = (-PRINT_CROP_Y / PRINT_CROP_H * 100).toFixed(6);
+  const mapBleedCrop = `<div class="printMapSvgCrop"><img src="${mapImg.src}" alt="" style="left:${bleedMapLeftPct}%;top:${bleedMapTopPct}%;width:${bleedMapWidthPct}%;height:${bleedMapHeightPct}%;"></div>`;
+  const mapBleedContent = `<div class="printMapBleedFill"><div class="printMapBleedBody">${mapBleedCrop}</div><div class="printMapFooterTexture printMapBleedFooterTexture" aria-hidden="true"></div></div>`;
+
+  mapPage.innerHTML = buildPrintSheetMarkup(mapContent, 'map', mapBleedContent);
   applyPrintLayoutSettings();
 }
 function printTarget(target) {
