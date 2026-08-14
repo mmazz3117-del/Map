@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Print Map Editor v148</title>
-<meta name="application-name" content="Print Map Editor v148">
-<meta name="apple-mobile-web-app-title" content="Print Map Editor v148">
+<title>Print Map Editor v149</title>
+<meta name="application-name" content="Print Map Editor v149">
+<meta name="apple-mobile-web-app-title" content="Print Map Editor v149">
 <style>
   :root {
     --navy:#062f45; --cream:#ffffff; --paper:#ffffff; --muted:#dfe7ec; --gold:#f0b43c;
@@ -686,7 +686,7 @@
 </head>
 <body>
 <header>
-  <h1>Print Map Editor v148</h1>
+  <h1>Print Map Editor v149</h1>
   <nav class="tabs">
     <button id="tabMap" class="active" onclick="showTab('map')">Map / Pins</button>
     <button id="tabDirectory" onclick="showTab('directory')">Business Directory Editor</button>
@@ -1851,7 +1851,7 @@ function renderPreview() {
 }
 function buildFullProjectExport() {
   return {
-    version:'Print Map Editor v148 Deletion Persistence + Staples Bleed Fix',
+    version:'Print Map Editor v149 Deletion Persistence + Staples Bleed Fix',
     updated:new Date().toISOString(),
     businesses,
     pins:getPinData(),
@@ -2858,7 +2858,8 @@ viewport.addEventListener('wheel', e => { e.preventDefault(); const r=viewport.g
 // v134 pan fix: prevent native browser image/element dragging and use window-level pointer tracking.
 function startViewportPan(e) {
   if (e.button !== undefined && e.button !== 0) return;
-  if (e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay') || e.target.closest('.treeStamp')) return;
+  // v149: leader-anchor clicks must bypass the viewport add-pin capture handler.
+  if (e.target.closest('.mapBrandOverlay') || e.target.closest('.qrOverlay') || e.target.closest('.treeStamp') || e.target.closest('.leaderAnchor')) return;
   const hitPin = e.target.closest('.pin');
   // In Add/Edit Pins mode, clicking an existing pin should let the pin-drag handler move it.
   // In Move Map mode, pins are locked and dragging over a pin pans the map instead.
